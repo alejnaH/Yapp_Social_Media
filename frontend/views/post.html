@@ -1,0 +1,321 @@
+<style>
+.postpage-custom-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+  border: 1px solid #d1d5db;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  padding: 16px;
+  margin: 20px 0 10px 0;
+  width: 99.5%;
+  max-width: 100%;
+  height: auto;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+  background-color: #ffffff;
+}
+.postpage-custom-card:first-of-type {
+  margin-top: 2px;
+}
+@media (max-width: 600px) {
+  .postpage-custom-card {
+    width: 100%;
+    max-width: 98vw;
+    margin: 32px 1vw 16px 1vw;
+    padding: 8px;
+    min-width: 0;
+    height: auto;
+    box-sizing: border-box;
+  }
+  .postpage-card-body {
+    padding: 0 !important;
+  }
+  .postpage-avatar-header {
+    gap: 8px;
+  }
+  .postpage-avatar-img {
+    width: 32px;
+    height: 32px;
+  }
+  .postpage-card-title {
+    font-size: 1rem;
+  }
+  .postpage-card-footer {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+    justify-content: flex-start;
+  }
+  .postpage-action {
+    min-width: 0;
+    flex: 1 1 120px;
+    padding: 6px 8px !important;
+    font-size: 0.98rem !important;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .postpage-action span {
+    font-size: 0.98rem !important;
+  }
+}
+.postpage-custom-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  border-color: #4f8cff;
+}
+.postpage-card-title {
+  color: #000000;
+  font-weight: bold;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  margin-top: 18px;
+  margin-bottom: 12px;
+}
+.postpage-card-text {
+  color: #333333;
+  margin-bottom: 30px;
+}
+.postpage-card-footer {
+  margin-top: 45px;
+}
+.postpage-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 14px !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  border: 1.5px solid #e6e9f2 !important;
+  color: #596273 !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  transition: background .15s, color .15s, border-color .15s, transform .05s !important;
+}
+.postpage-action svg {
+  display: block !important;
+  color: #596273 !important;
+}
+.postpage-action:hover {
+  background: #f7f8fb !important;
+  color: #0e1320 !important;
+  border-color: #d1d5db !important;
+}
+.postpage-action:hover svg,
+.postpage-action:hover span {
+  color: #0e1320 !important;
+  fill: #0e1320 !important;
+}
+.postpage-action:active {
+  transform: translateY(1px) !important;
+}
+.postpage-action:focus-visible {
+  outline: 3px solid #b3c6ff !important;
+  outline-offset: 2px !important;
+}
+.postpage-card-separator {
+  border-top: 1.5px dashed #dfe3ef;
+  margin: 18px 0 18px 0;
+  width: 100%;
+  opacity: 0.7;
+}
+.postpage-avatar-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 16px 0 8px;
+  padding-left: 7px;
+}
+.postpage-avatar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #d1d5db;
+  margin-top: -8px;
+  margin-left: -8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+</style>
+
+<style>
+/* Comment Section Styles */
+.postpage-comment-section {
+  margin-top: 32px;
+  padding: 0 8px 16px 8px;
+}
+.postpage-comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.postpage-comment-textarea {
+  width: 100%;
+  min-height: 60px;
+  border-radius: 12px;
+  border: 1.5px solid #e6e9f2;
+  padding: 12px 14px;
+  font-size: 1rem;
+  resize: vertical;
+  background: #fafbfc;
+  transition: border-color 0.15s;
+}
+.postpage-comment-textarea:focus {
+  border-color: #4f8cff;
+  outline: none;
+}
+.postpage-comment-btn {
+  align-self: flex-end;
+  background: #4f8cff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 22px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.postpage-comment-btn:hover {
+  background: #2a6ad1;
+}
+.postpage-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.postpage-comment {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 0 0 0 2px;
+}
+.postpage-comment-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #e6e9f2;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.postpage-comment-content {
+  background: #f7f8fb;
+  border-radius: 12px;
+  padding: 10px 16px 10px 16px;
+  min-width: 0;
+  flex: 1;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+.postpage-comment-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.postpage-comment-username {
+  font-weight: 600;
+  color: #222;
+  font-size: 1rem;
+}
+.postpage-comment-time {
+  font-size: 0.92rem;
+  color: #888;
+  font-style: italic;
+  margin-left: 4px;
+}
+.postpage-comment-body {
+  color: #333;
+  font-size: 1rem;
+  margin-top: 2px;
+}
+@media (max-width: 600px) {
+  .postpage-comment-section {
+    padding: 0 2vw 12px 2vw;
+  }
+  .postpage-comment-content {
+    padding: 8px 8px 8px 10px;
+    font-size: 0.98rem;
+  }
+  .postpage-comment-username {
+    font-size: 0.98rem;
+  }
+  .postpage-comment-time {
+    font-size: 0.88rem;
+  }
+  .postpage-comment-avatar {
+    width: 30px;
+    height: 30px;
+  }
+}
+</style>
+
+
+<div class="postpage-custom-card postpage-extended-card">
+  <div class="postpage-card-body" style="padding:0;">
+    <div class="postpage-avatar-header">
+      <img src="http://localhost/Yapp/frontend/assets/images/profile-icon.png" alt="Avatar" class="postpage-avatar-img">
+      <div>
+        <span class="postpage-card-author">@yourname</span>
+      </div>
+    </div>
+    <h5 class="postpage-card-title">One piece is overrated</h5>
+    <p class="postpage-card-text">1200+ episodes and horrible animation, AoT deserves much better..</p>
+    <div class="postpage-card-footer">
+      <div class="postpage-card-separator"></div>
+      <button class="postpage-action" aria-label="Like">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M12 21s-8.5-5.6-8.5-11.3A4.7 4.7 0 0 1 8.2 5a5.3 5.3 0 0 1 3.8 1.7A5.3 5.3 0 0 1 15.8 5a4.7 4.7 0 0 1 4.7 4.7C20.5 15.4 12 21 12 21z" fill="currentColor"/>
+        </svg>
+        <span>95</span>
+      </button>
+      <button class="postpage-action" aria-label="Comment">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" fill="currentColor"/>
+        </svg>
+        <span>33</span>
+      </button>
+    </div>
+    <!-- Comment Section (now inside the same card) -->
+    <div class="postpage-comment-section postpage-comment-section-unified">
+      <form class="postpage-comment-form">
+        <textarea class="postpage-comment-textarea" placeholder="Write a comment"></textarea>
+        <button type="submit" class="postpage-comment-btn">Post</button>
+      </form>
+      <div class="postpage-comments-list">
+        <!-- Example Comment 1 -->
+        <div class="postpage-comment">
+          <img src="http://localhost/Yapp/frontend/assets/images/cat.png" alt="Avatar" class="postpage-comment-avatar">
+          <div class="postpage-comment-content">
+            <div class="postpage-comment-header">
+              <span class="postpage-comment-username">@animefan</span>
+              <span class="postpage-comment-time">commented at 12:20</span>
+            </div>
+            <div class="postpage-comment-body">I totally agree, AoT is a masterpiece!</div>
+          </div>
+        </div>
+        <!-- Example Comment 2 -->
+        <div class="postpage-comment">
+          <img src="http://localhost/Yapp/frontend/assets/images/onepiece.png" alt="Avatar" class="postpage-comment-avatar">
+          <div class="postpage-comment-content">
+            <div class="postpage-comment-header">
+              <span class="postpage-comment-username">@luffy</span>
+              <span class="postpage-comment-time">commented at 12:22</span>
+            </div>
+            <div class="postpage-comment-body">Bruh, One Piece is the GOAT, you just don't get it!</div>
+          </div>
+        </div>
+        <!-- Example Comment 3 -->
+        <div class="postpage-comment">
+          <img src="http://localhost/Yapp/frontend/assets/images/admin-icon.png" alt="Avatar" class="postpage-comment-avatar">
+          <div class="postpage-comment-content">
+            <div class="postpage-comment-header">
+              <span class="postpage-comment-username">@admin</span>
+              <span class="postpage-comment-time">commented at 12:23</span>
+            </div>
+            <div class="postpage-comment-body">Let's keep it civil, folks. Both shows are great in their own way.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
