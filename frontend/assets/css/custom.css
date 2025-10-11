@@ -1,0 +1,430 @@
+/*Navbar -  Navigation bar*/
+
+.navbar-edit {
+  border-bottom: 1px solid #d1a4a4;
+}
+
+.button-login {
+    font-size: 14px;
+    padding-left: 20px;
+    padding-right: 20px;
+    min-width: 80px;
+    white-space: nowrap;
+    background-color: #dc3545; 
+    color: white; 
+    border-color: #dc3545; 
+    border-radius: 20px;
+}
+
+.button-login:hover {
+    background-color: #b02a37; 
+    border-color: #b02a37;
+}
+
+/* Modal Post Button Styles */
+#writePostModal .btn-primary {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: #fff;
+  transition: background 0.15s, border-color 0.15s;
+}
+#writePostModal .btn-primary:hover,
+#writePostModal .btn-primary:focus {
+  background-color: #b02a37; /* darker red */
+  border-color: #b02a37;
+  color: #fff;
+}
+
+/* Dismiss button: white with #dc3545 text, #f5eef1 background on hover, #dc3545 text */
+#writePostModal .btn-secondary {
+  background-color: #fff;
+  border-color: #dc3545;
+  color: #dc3545;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+#writePostModal .btn-secondary:hover,
+#writePostModal .btn-secondary:focus {
+  background-color: #fbe6ea; /* light red tint */
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+/*Profile Page*/
+
+   /* Make the Edit link look modern and interactive */
+    #edit-caption {
+      color: #007bff; /* Bootstrap primary blue */
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    #edit-caption:hover {
+      color: #0056b3; /* Darker blue on hover */
+      text-decoration: underline;
+    }
+    
+    body {
+  background-color: #f5eef1; /* light gray-blue */
+}
+
+  /*Login Page*/
+      .login-custom {
+        background: #f5eef1 !important;
+        min-height: 100vh;
+    }
+    .login-custom .card {
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        background: #fff;
+        padding: 0;
+    }
+    .login-custom .card-body {
+        padding: 40px 32px 32px 32px !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .login-custom .card-body h3 {
+        font-weight: 600;
+    }
+    .login-custom .form-control {
+        font-size: 1.08rem;
+        padding: 12px 14px;
+        border-radius: 8px;
+        width: 100%;
+        max-width: 320px;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+    .login-custom .btn-primary {
+        width: 100%;
+        max-width: 320px;
+        font-size: 1.08rem;
+        border-radius: 8px;
+        padding: 10px 0;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+    @media (max-width: 600px) {
+        .login-custom .card-body {
+            padding: 28px 8px 22px 8px !important;
+        }
+        .login-custom .form-control, .login-custom .btn-primary {
+            max-width: 98vw;
+        }
+    }
+
+  /*Signup Page*/
+  
+      .signup-custom {
+        background: #f5eef1 !important;
+        min-height: 100vh;
+    }
+    .signup-custom .card {
+        border-radius: 16px !important;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        background: #fff;
+        padding: 0;
+    }
+        .signup-custom .card-body {
+            padding: 24px 32px 20px 32px !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    .signup-custom .card-body .h3,
+    .signup-custom .card-body h3,
+    .signup-custom .card-body .fw-bold {
+        font-weight: 600 !important;
+    }
+    .signup-custom .form-control {
+        font-size: 1.08rem;
+        padding: 12px 14px;
+        border-radius: 8px;
+        width: 100%;
+        max-width: 320px;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+    .signup-custom .btn-primary {
+        width: 100%;
+        max-width: 320px;
+        font-size: 1.08rem;
+        border-radius: 8px;
+        padding: 10px 0;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+    @media (max-width: 600px) {
+        .signup-custom .card-body {
+            padding: 28px 8px 22px 8px !important;
+        }
+        .signup-custom .form-control, .signup-custom .btn-primary {
+            max-width: 98vw;
+        }
+    }
+
+/*Dashboard Page - Post Card*
+
+/* Responsive adjustments for card and actions */
+@media (max-width: 600px) {
+  .my-custom-card {
+    padding: 8px;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    box-sizing: border-box;
+  }
+  .card-body {
+    padding: 0 !important;
+  }
+  .avatar-header {
+    gap: 8px;
+  }
+  .avatar-img {
+    width: 32px;
+    height: 32px;
+  }
+  .card-title {
+    font-size: 1rem;
+  }
+  .card-footer {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+    justify-content: flex-start;
+  }
+  .action {
+    min-width: 0;
+    flex: 1 1 120px;
+    padding: 6px 8px !important;
+    font-size: 0.98rem !important;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .action span {
+    font-size: 0.98rem !important;
+  }
+}
+body {
+  background: #f5eef1; 
+}
+/* Avatar header for card */
+.avatar-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 16px 0 8px;
+  padding-left: 7px;
+}
+
+.avatar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid color-mix(in oklab, var(--border) 60%, var(--accent));
+  margin-top: -8px;
+  margin-left: -8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+   
+}
+/* Custom Card Styling */
+/* Card/Post Details for .my-custom-card */
+:root {
+  --border: #d1d5db;
+  --radius: 18px;
+  --shadow: 0 4px 16px rgba(0,0,0,0.10);
+  --accent: #4f8cff;
+}
+
+.my-custom-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  margin: 20px 0 10px 0;
+  width: 99.5%;
+  max-width: 100%;
+  height: auto;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+  background-color: #ffffff;
+}
+.my-custom-card:first-of-type {
+  margin-top: 90px;
+}
+@media (max-width: 600px) {
+  .my-custom-card {
+    width: 100%;
+    max-width: 98vw;
+    margin: 32px 1vw 16px 1vw;
+    padding: 8px;
+    min-width: 0;
+    height: auto;
+    box-sizing: border-box;
+  }
+  .card-body {
+    padding: 0 !important;
+  }
+  .avatar-header {
+    gap: 8px;
+  }
+  .avatar-img {
+    width: 32px;
+    height: 32px;
+  }
+  .card-title {
+    font-size: 1rem;
+  }
+  .card-footer {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+    justify-content: flex-start;
+  }
+  .action {
+    min-width: 0;
+    flex: 1 1 120px;
+    padding: 6px 8px !important;
+    font-size: 0.98rem !important;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .action span {
+    font-size: 0.98rem !important;
+  }
+}
+
+.my-custom-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  border-color: color-mix(in oklab, var(--border) 70%, var(--accent));
+}
+
+.my-custom-card .card-title {
+  color: #000000;
+  font-weight: bold;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  margin-top: 18px;
+  margin-bottom: 12px;
+}
+
+.my-custom-card .btn-primary {
+  background-color: #4f8cff;
+  border: none;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+.my-custom-card .btn-primary:hover {
+  background-color: #2a6ad1;
+}
+
+.card-text {
+  color: #333333;
+  margin-bottom: 30px;
+}
+.card-footer {
+  margin-top: 45px; /* Increase this value to move the buttons further down */
+}
+
+.action {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 14px !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  border: 1.5px solid #e6e9f2 !important;
+  color: #596273 !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  transition: background .15s, color .15s, border-color .15s, transform .05s !important;
+}
+
+.action svg {
+  display: block !important;
+  color: #596273 !important;
+}
+
+.action:hover {
+  background: #f7f8fb !important;
+  color: #0e1320 !important;
+  border-color: #d1d5db !important;
+}
+
+.action:hover svg,
+.action:hover span {
+  color: #0e1320 !important;
+  fill: #0e1320 !important;
+}
+
+.action:active {
+  transform: translateY(1px) !important;
+}
+
+.action:focus-visible {
+  outline: 3px solid #b3c6ff !important;
+  outline-offset: 2px !important;
+}
+
+/* Pale dotted line separator above buttons */
+.card-separator {
+  border-top: 1.5px dashed #dfe3ef;
+  margin: 18px 0 18px 0;
+  width: 100%;
+  opacity: 0.7;
+}
+
+/* Feed Toggle Button Styles */
+.feed-toggle-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 24px 0 10px 0;
+  width: 100%;
+}
+.feed-toggle-btn {
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 12px 36px;
+  border: 1.5px solid #dc3545;
+  background: #fff;
+  color: #dc3545;
+  border-radius: 24px 0 0 24px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  margin: 0;
+  box-shadow: 0 2px 8px rgba(220,53,69,0.04);
+}
+.feed-toggle-btn:last-child {
+  border-radius: 0 24px 24px 0;
+  border-left: none;
+}
+.feed-toggle-btn.active {
+  background: #dc3545;
+  color: #fff;
+  z-index: 1;
+}
+.feed-toggle-btn:not(.active):hover {
+  background: #fbe6ea;
+}
+@media (max-width: 600px) {
+  .feed-toggle-btn {
+    font-size: 1rem;
+    padding: 10px 0.5em;
+    min-width: 40vw;
+  }
+  .feed-toggle-container {
+    margin: 16px 0 8px 0;
+  }
+}
