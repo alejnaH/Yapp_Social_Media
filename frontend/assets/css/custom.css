@@ -21,6 +21,21 @@
     border-color: #b02a37;
 }
 
+/* Simple left-side Communities link (text-only, pink) */
+.nav-communities {
+  color: #dc3545 !important; /* app pink */
+  font-weight: 600;
+  margin-left: 8px;
+}
+.nav-communities:hover {
+  color: #b02a37 !important;
+  text-decoration: none !important;
+}
+
+/* Ensure the left-side nav group stays left and doesn't center */
+.navbar-left { margin-right: auto; gap: 10px; }
+.navbar-left .nav-communities { color: #dc3545 !important; }
+
 /* Modal Post Button Styles */
 #writePostModal .btn-primary {
   background-color: #dc3545;
@@ -428,3 +443,6 @@ body {
     margin: 16px 0 8px 0;
   }
 }
+
+/*Community Page*/
+
