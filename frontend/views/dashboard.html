@@ -2,23 +2,11 @@
   <button class="feed-toggle-btn active" id="exploreBtn">Explore</button>
   <button class="feed-toggle-btn" id="myFeedBtn">My feed</button>
 </div>
-<script>
-  const exploreBtn = document.getElementById('exploreBtn');
-  const myFeedBtn = document.getElementById('myFeedBtn');
-  exploreBtn.addEventListener('click', function() {
-    exploreBtn.classList.add('active');
-    myFeedBtn.classList.remove('active');
-  });
-  myFeedBtn.addEventListener('click', function() {
-    myFeedBtn.classList.add('active');
-    exploreBtn.classList.remove('active');
-  });
-
-</script>
 
 <div class="my-custom-card">
 
-  <div class="card-body" style="padding:0;">
+  <a class="card-link" href="/Yapp/frontend/index.html#post">
+    <div class="card-body" style="padding:0;">
     <div class="avatar-header">
       <img src="http://localhost/Yapp/frontend/assets/images/profile-icon.png" alt="Avatar" class="avatar-img">
       <div>
@@ -41,12 +29,14 @@
         </svg>
         <span>33</span>
       </button>
-    </div>
-  </div>
+</div>
+  </a>
+</div>
 </div>
 
 <div class="my-custom-card">
-  <div class="card-body" style="padding:0;">
+  <a class="card-link" href="/Yapp/frontend/index.html#post">
+    <div class="card-body" style="padding:0;">
     <div class="avatar-header">
       <img src="http://localhost/Yapp/frontend/assets/images/profile-icon.png" alt="Avatar" class="avatar-img">
       <div>
@@ -70,11 +60,13 @@
         <span>33</span>
       </button>
     </div>
-  </div>
+    </div>
+  </a>
 </div>
 
 <div class="my-custom-card">
-  <div class="card-body" style="padding:0;">
+  <a class="card-link" href="/Yapp/frontend/index.html#post">
+    <div class="card-body" style="padding:0;">
     <div class="avatar-header">
       <img src="http://localhost/Yapp/frontend/assets/images/profile-icon.png" alt="Avatar" class="avatar-img">
       <div>
@@ -98,7 +90,8 @@
         <span>33</span>
       </button>
     </div>
-  </div>
+    </div>
+  </a>
 </div>
 
 
