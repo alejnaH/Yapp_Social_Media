@@ -1,0 +1,93 @@
+<main class="mycomm-main">
+
+	<!-- Top bar: left create button, right search input -->
+	<div class="mycomm-topbar">
+		<div class="mycomm-topbar-left">
+			<button class="mycomm-create-btn" type="button" data-bs-toggle="modal" data-bs-target="#mycommCreateCommunityModal">Create</button>
+		</div>
+		<div class="mycomm-topbar-right">
+			<label for="mycomm-search" class="visually-hidden">Search communities</label>
+			<input id="mycomm-search" class="mycomm-search-input" type="search" placeholder="Search communities" />
+		</div>
+	</div>
+
+	<!-- Three consecutive community cards (renamed classes) -->
+
+				<section class="mycomm-community-card mycomm-tall-card">
+					<a class="mycomm-card-link" href="/Yapp/frontend/index.html#community">
+						<div class="mycomm-community-body">
+							<div class="mycomm-community-header">
+								<h2 class="mycomm-community-title">Gardening & Growers</h2>
+								<p class="mycomm-community-desc">Tips, photos and Q&amp;A for home gardeners and urban growers.</p>
+							</div>
+
+							<div class="mycomm-community-footer">
+								<div class="mycomm-members-box">Members: <span class="mycomm-member-count">12,345</span></div>
+								<button class="mycomm-subscribe-btn" type="button" onclick="event.preventDefault(); event.stopPropagation();">Settings</button>
+							</div>
+						</div>
+					</a>
+				</section>
+
+				<section class="mycomm-community-card mycomm-tall-card">
+					<a class="mycomm-card-link" href="/Yapp/frontend/index.html#community">
+						<div class="mycomm-community-body">
+							<div class="mycomm-community-header">
+								<h2 class="mycomm-community-title">Indie Game Developers</h2>
+								<p class="mycomm-community-desc">Share builds, post devlogs, and discuss game design challenges.</p>
+							</div>
+
+							<div class="mycomm-community-footer">
+								<div class="mycomm-members-box">Members: <span class="mycomm-member-count">8,921</span></div>
+								<button class="mycomm-subscribe-btn" type="button" onclick="event.preventDefault(); event.stopPropagation();">Settings</button>
+							</div>
+						</div>
+					</a>
+				</section>
+
+				<section class="mycomm-community-card mycomm-tall-card">
+					<a class="mycomm-card-link" href="/Yapp/frontend/index.html#community">
+						<div class="mycomm-community-body">
+							<div class="mycomm-community-header">
+								<h2 class="mycomm-community-title">Photography Walks</h2>
+								<p class="mycomm-community-desc">Organize local photowalks and critique each other's work kindly.</p>
+							</div>
+
+							<div class="mycomm-community-footer">
+								<div class="mycomm-members-box">Members: <span class="mycomm-member-count">3,402</span></div>
+								<button class="mycomm-subscribe-btn" type="button" onclick="event.preventDefault(); event.stopPropagation();">Settings</button>
+							</div>
+						</div>
+					</a>
+				</section>
+
+</main>
+
+<!-- Create Community Modal (IDs renamed to avoid clashes) -->
+<div class="modal fade" id="mycommCreateCommunityModal" tabindex="-1" aria-labelledby="mycommCreateCommunityLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="mycommCreateCommunityLabel">Create community</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<form id="mycommCreateCommunityForm">
+				<div class="modal-body">
+					<div class="mb-3">
+						<label for="mycommCommunityName" class="form-label">Community name</label>
+						<input type="text" class="form-control" id="mycommCommunityName" name="name" required maxlength="80" />
+					</div>
+					<div class="mb-3">
+						<label for="mycommCommunityDesc" class="form-label">Short description</label>
+						<input type="text" class="form-control" id="mycommCommunityDesc" name="shortDescription" maxlength="160" />
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-primary">Create</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+

@@ -1012,3 +1012,156 @@ body {
     height: 30px;
   }
 }
+
+/*My-Communities Page*/
+
+.mycomm-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  margin: 8px 0 18px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mycomm-topbar-left { display: flex; align-items: center; }
+.mycomm-topbar-right { display: flex; align-items: center; }
+
+.mycomm-create-btn {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(220,53,69,0.12);
+}
+.mycomm-create-btn:hover { background-color: #b02a37; }
+
+.mycomm-search-input {
+  border: 1px solid #e6e9ef;
+  padding: 8px 12px;
+  border-radius: 10px;
+  min-width: 220px;
+  max-width: 420px;
+  width: 32vw;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.mycomm-search-input:focus { outline: 3px solid rgba(79,140,255,0.18); }
+
+.mycomm-main { padding: 0 18px 40px 18px; }
+
+.mycomm-community-card {
+	padding: 20px;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	background-color: #f9f9f9;
+	margin-bottom: 16px;
+}
+
+.mycomm-community-card.mycomm-tall-card {
+	min-height: 280px;
+	display: flex;
+	flex-direction: column;
+}
+
+.mycomm-community-card.mycomm-tall-card .mycomm-community-body {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+}
+
+.mycomm-community-header { margin-bottom: 12px; }
+
+.mycomm-community-title {
+	font-size: 1.4rem;
+	font-weight: 700;
+	margin: 0 0 6px 0;
+	color: #0e1320;
+}
+
+.mycomm-community-title a {
+  color: inherit;
+  text-decoration: none;
+  display: inline-block;
+}
+.mycomm-community-title a:hover { text-decoration: underline; }
+
+.mycomm-card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.mycomm-card-link:focus { outline: 3px solid rgba(79,140,255,0.18); outline-offset: 4px; }
+.mycomm-card-link .mycomm-community-body { pointer-events: none; }
+.mycomm-card-link .mycomm-subscribe-btn { pointer-events: auto; }
+.mycomm-card-link .card-body { pointer-events: none; }
+.mycomm-card-link .action { pointer-events: auto; }
+
+.mycomm-community-desc { margin: 0; color: #6c757d; font-size: 0.98rem; }
+
+.mycomm-community-footer {
+	margin-top: auto;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	padding-top: 12px;
+}
+
+.mycomm-members-box {
+	background: #fff;
+	border: 1px solid #e6e9ef;
+	padding: 6px 10px;
+	border-radius: 8px;
+	font-weight: 600;
+	color: #333;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.mycomm-member-count { color: #4f8cff; font-weight: 700; }
+
+.mycomm-subscribe-btn {
+	background-color: #dc3545;
+	color: #fff;
+	border: none;
+	padding: 8px 14px;
+	border-radius: 10px;
+	font-weight: 700;
+	cursor: pointer;
+	box-shadow: 0 4px 12px rgba(220,53,69,0.12);
+}
+.mycomm-subscribe-btn:hover { background-color: #b02a37; }
+
+@media (max-width: 600px) {
+	.mycomm-community-title { font-size: 1.1rem; }
+	.mycomm-community-footer { flex-direction: column; align-items: stretch; gap: 8px; }
+	.mycomm-subscribe-btn { width: 100%; }
+}
+
+@media (max-width: 860px) {
+  .mycomm-search-input { width: 46vw; min-width: 160px; }
+}
+
+@media (max-width: 600px) {
+  .mycomm-topbar { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px; }
+  .mycomm-topbar-right { justify-content: flex-end; }
+  .mycomm-search-input { width: 100%; max-width: 100%; }
+  .mycomm-create-btn { width: 100%; }
+  .mycomm-main { padding-left: 12px; padding-right: 12px; }
+}
+
+/* Modal button adjustments scoped to my-communities modal */
+#mycommCreateCommunityModal .btn-primary {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+#mycommCreateCommunityModal .btn-primary:hover { background-color: #b02a37; border-color: #b02a37; }
+#mycommCreateCommunityModal .btn-secondary { color: #dc3545; border-color: #dc3545; background-color: #fff; }
+#mycommCreateCommunityModal .btn-secondary:hover { background-color: #fbe6ea; }
