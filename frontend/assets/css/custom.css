@@ -1414,3 +1414,100 @@ body {
     height: 30px;
   }
 }
+
+/*Admin Page*/
+
+/* Small helper selectors matching updated admin.html helper classes */
+.yappadmin-form-control {
+  padding: 10px 12px !important;
+  font-size: 1rem !important;
+}
+.yappadmin-btn-clear {
+  min-width: 70px !important;
+}
+.yappadmin-rows-select {
+  padding: 6px 8px !important;
+}
+.yappadmin-name { font-weight: 500 !important; }
+.yappadmin-username { color: #444 !important; }
+.yappadmin-email { color: #222 !important; }
+
+	/* Admin page container (unique classes prefixed with yappadmin-) */
+			.yappadmin-admin-wrap {
+				padding: 30px 15px;
+			}
+
+			.yappadmin-admin-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 15px;
+				margin-bottom: 18px;
+			}
+
+			.yappadmin-admin-title {
+				margin: 0;
+				font-size: 1.4rem;
+				font-weight: 600;
+			}
+
+			/* Search input */
+			.yappadmin-admin-search {
+				max-width: 360px;
+				width: 100%;
+			}
+
+			/* Table specific styles */
+			.yappadmin-admin-table {
+				width: 100%;
+				border-collapse: collapse;
+				background: #fff;
+			}
+
+			.yappadmin-admin-table thead th {
+				background: #f8f9fa;
+				border-bottom: 2px solid #e9ecef;
+				font-weight: 600;
+			}
+
+			.yappadmin-admin-table tbody tr:hover {
+				background: #fbfbfb;
+			}
+
+
+
+			.yappadmin-btn-ban {
+				background: #dc3545;
+				border-color: #dc3545;
+				color: #fff;
+				padding: 6px 12px;
+				font-size: 0.9rem;
+			}
+
+			.yappadmin-btn-ban:hover {
+				background: #c82333;
+				border-color: #bd2130;
+				color: #fff;
+			}
+
+			/* Small helper styles for pagination/search area */
+			.yappadmin-admin-controls {
+				display: flex;
+				gap: 12px;
+				align-items: center;
+			}
+
+			.yappadmin-admin-pagination {
+				display: flex;
+				gap: 6px;
+				align-items: center;
+			}
+
+			/* Responsive tweak */
+			@media (max-width: 575px) {
+				.yappadmin-admin-header { flex-direction: column; align-items: stretch; }
+				.yappadmin-admin-controls { flex-direction: column; align-items: stretch; }
+				.yappadmin-admin-search { max-width: 100%; }
+			}
+
+
