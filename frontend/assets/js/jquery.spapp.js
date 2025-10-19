@@ -20,7 +20,7 @@
                 onReady  : function() { }
             }
         });
-        // update rotues programatically
+        // update routes programatically
         this.route = function(options) { $.extend(routes[options.view], options); }
 
         // manage hash change
