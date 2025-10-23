@@ -1,9 +1,9 @@
 <?php
 class Database {
    private static $host = 'localhost';
-   private static $dbName = 'Yapp_Database';
+   private static $dbName = 'database_yapp';
    private static $username = 'root';
-   private static $password = 'root';
+   private static $password = 'root123';
    private static $connection = null;
 
 
