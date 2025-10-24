@@ -1,3 +1,4 @@
+
   <section class="vh-100">
     <div class="container py-5 h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
@@ -11,8 +12,13 @@
           <div class="card" style="border-radius: 15px;">
             <div class="card-body text-center position-relative">
 
+              <!-- Admin button in top-left corner (opposite Edit). Links to admin page. -->
+              <a href="/Yapp/frontend/index.html#admin" class="position-absolute top-0 start-0 m-3 small text-decoration-none yapp-action-link yapp-admin-caption" aria-label="Admin page">
+                Admin
+              </a>
+
               <!-- Edit button in top-right corner -->
-              <a href="#admin" class="position-absolute top-0 end-0 m-3 small text-decoration-none" id="edit-caption">
+              <a href="edit" class="position-absolute top-0 end-0 m-3 small text-decoration-none yapp-action-link yapp-edit-caption" aria-label="Edit profile">
                 Edit
               </a>
 
