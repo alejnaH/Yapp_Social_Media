@@ -3,235 +3,162 @@ require_once __DIR__ . '/../dao/UserDao.php';
 require_once __DIR__ . '/../dao/PostDao.php';
 require_once __DIR__ . '/../dao/CommunityDao.php';
 require_once __DIR__ . '/../dao/CommunityPostDao.php';
+require_once __DIR__ . '/../dao/CommentDao.php';
+require_once __DIR__ . '/../dao/CommunityCommentDao.php';
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-$userDao = new UserDao();
-$postDao = new PostDao();
-$commDao = new CommunityDao();
-$cpDao   = new CommunityPostDao();
+$userDao   = new UserDao();
+$postDao   = new PostDao();
+$commDao   = new CommunityDao();
+$cpDao     = new CommunityPostDao();
+$commentDao= new CommentDao();
+$ccDao     = new CommunityCommentDao();
 
 echo "<pre>";
 
-/** =========================
- *  (OLD) UserDao quick test
- *  =========================
- *  NOTE: Kept exactly as you had it, but commented out per your request.
- */
-/*
-try {
-    $newUser = [
-        'Username' => 'testuser' . mt_rand(1000, 9999),
-        'Email'    => 'test' . mt_rand(1000, 9999) . '@example.com',
-        'Password' => password_hash('password123', PASSWORD_BCRYPT),
-        'FullName' => 'Test User',
-        'Role'     => 'user'
-    ];
-
-    $newId = $userDao->create_user($newUser);
-    echo "✅ User created with ID: $newId\n";
-
-    $user = $userDao->getByEmail($newUser['Email']);
-    echo "✅ getByEmail():\n"; print_r($user);
-
-    $user = $userDao->getByUsername($newUser['Username']);
-    echo "✅ getByUsername():\n"; print_r($user);
-
-    $user = $userDao->get_user_by_id($newId);
-    echo "✅ get_user_by_id():\n"; print_r($user);
-
-    $rows = $userDao->update_user($newId, ['FullName' => 'Updated Test User', 'Role' => 'admin']);
-    echo "✅ update_user(): $rows row(s) affected\n";
-} catch (Exception $e) {
-    echo "❌ User tests failed: " . $e->getMessage() . "\n";
-}
-*/
-
-/** =========================
- *  (OLD) PostDao tests
- *  =========================
- *  NOTE: Kept exactly as you had it, but commented out per your request.
- */
-/*
-try {
-    // Use the same user as post owner
-    $postId = $postDao->create_post([
-        'UserID'  => $newId,
-        'Title'   => 'Hello Post',
-        'Content' => 'This is the first content body.'
-    ]);
-    echo "✅ Post created with ID: $postId\n";
-
-    $one = $postDao->get_one_post($postId);
-    echo "✅ get_one_post():\n"; print_r($one);
-
-    $all = $postDao->get_all_posts();
-    echo "✅ get_all_posts(): total=" . count($all) . " (showing up to 2)\n";
-    print_r(array_slice($all, 0, 2));
-
-    $rows = $postDao->edit_post($postId, ['Title' => 'Hello Post (edited)', 'Content' => 'Updated content.']);
-    echo "✅ edit_post(): $rows row(s) affected\n";
-
-    $edited = $postDao->get_one_post($postId);
-    echo "✅ get_one_post() after edit:\n"; print_r($edited);
-
-    $byUser = $postDao->getByUserId($newId);
-    echo "✅ getByUserId($newId): found " . count($byUser) . " post(s)\n";
-
-    $withInfo = $postDao->getPostsWithUserInfo();
-    echo "✅ getPostsWithUserInfo(): got " . count($withInfo) . " rows\n";
-    if (!empty($withInfo)) { print_r($withInfo[0]); }
-
-    $withInfoYou = $postDao->getPostsWithUserInfo($newId);
-    echo "✅ getPostsWithUserInfo($newId): got " . count($withInfoYou) . " rows\n";
-    if (!empty($withInfoYou)) { print_r($withInfoYou[0]); }
-
-    $details = $postDao->getPostWithDetails($postId);
-    echo "✅ getPostWithDetails($postId):\n"; print_r($details);
-
-    // keep data
-    // $del = $postDao->delete_post($postId);
-    // echo "✅ delete_post(): $del row(s) deleted\n";
-    // $delUser = $userDao->delete_user($newId);
-    // echo "✅ delete_user(): $delUser row(s) deleted\n";
-} catch (Exception $e) {
-    echo "❌ Post tests failed: " . $e->getMessage() . "\n";
-}
-*/
-
 try {
     /* ===========================
-     *  0) Create a temp user
+     * Setup: create temp user
      * =========================== */
     $tmpUser = [
-        'Username' => 'comm_tester_' . mt_rand(1000, 9999),
-        'Email'    => 'comm_tester_' . mt_rand(1000, 9999) . '@example.com',
+        'Username' => 'cmt_tester_' . mt_rand(1000, 9999),
+        'Email'    => 'cmt_tester_' . mt_rand(1000, 9999) . '@example.com',
         'Password' => password_hash('secret123', PASSWORD_BCRYPT),
-        'FullName' => 'Community Tester',
+        'FullName' => 'Comment Tester',
         'Role'     => 'user'
     ];
-    $ownerId = $userDao->create_user($tmpUser);
-    echo "✅ Temp user created with ID: $ownerId\n";
+    $userId = $userDao->create_user($tmpUser);
+    echo "✅ Temp user created with ID: $userId\n";
 
     /* ===========================
-     *  1) CommunityDao — CREATE
+     * Setup: create a Post (for Comment tests)
      * =========================== */
-    $communityName = 'Test Community ' . mt_rand(1000, 9999);
+    $postId = $postDao->create_post([
+        'UserID'  => $userId,
+        'Title'   => 'Post for comment testing',
+        'Content' => 'Body for comment testing'
+    ]);
+    echo "✅ Post created with ID: $postId (for Comment tests)\n";
+
+    /* ===========================
+     * CommentDao tests
+     * =========================== */
+
+    // 1) Create comment
+    $commentId = $commentDao->create_comment([
+        'PostID'  => $postId,
+        'UserID'  => $userId,
+        'Content' => 'First test comment'
+    ]);
+    echo "✅ Comment created with ID: $commentId\n";
+
+    // 2) Get by ID
+    $c1 = $commentDao->get_comment_by_id($commentId);
+    echo "✅ Comment get_comment_by_id():\n";
+    print_r($c1);
+
+    // 3) Get by PostID
+    $byPost = $commentDao->getByPostId($postId);
+    echo "✅ Comment getByPostId($postId): found " . count($byPost) . " comment(s)\n";
+    if (!empty($byPost)) { print_r($byPost[0]); }
+
+    // 4) Get by UserID
+    $byUser = $commentDao->getByUserId($userId);
+    echo "✅ Comment getByUserId($userId): found " . count($byUser) . " comment(s)\n";
+    if (!empty($byUser)) { print_r($byUser[0]); }
+
+    // 5) Get with user info (join User)
+    $withUser = $commentDao->getCommentsWithUserInfo($postId);
+    echo "✅ Comment getCommentsWithUserInfo($postId): " . count($withUser) . " row(s)\n";
+    if (!empty($withUser)) { print_r($withUser[0]); }
+
+    // 6) Update comment content
+    $rows = $commentDao->update_comment($commentId, ['Content' => 'First test comment (edited)']);
+    echo "✅ Comment update_comment(): $rows row(s) affected\n";
+
+    // 7) Verify update
+    $c1e = $commentDao->get_comment_by_id($commentId);
+    echo "✅ Comment after edit:\n";
+    print_r($c1e);
+
+    /* ===========================
+     * Setup: create Community + CommunityPost (for CommunityComment tests)
+     * =========================== */
     $communityId = $commDao->create_community([
-        'Name'        => $communityName,
-        'Description' => 'Temporary test community for DAO tests',
-        'OwnerID'     => $ownerId,
+        'Name'        => 'Comment Community ' . mt_rand(1000, 9999),
+        'Description' => 'For community comment tests',
+        'OwnerID'     => $userId,
     ]);
     echo "✅ Community created with ID: $communityId\n";
 
-    /* ===========================
-     *  2) CommunityDao — GET BY ID
-     * =========================== */
-    $c = $commDao->get_community_by_id($communityId);
-    echo "✅ get_community_by_id():\n";
-    print_r($c);
-
-    /* ===========================
-     *  3) CommunityDao — GET BY NAME
-     * =========================== */
-    $cByName = $commDao->get_community_by_name($communityName);
-    echo "✅ get_community_by_name('{$communityName}'):\n";
-    print_r($cByName);
-
-    /* ===========================
-     *  4) CommunityDao — GET ALL
-     * =========================== */
-    $allComms = $commDao->get_all_communities();
-    echo "✅ get_all_communities(): total=" . count($allComms) . " (showing up to 2)\n";
-    print_r(array_slice($allComms, 0, 2));
-
-    /* ===========================
-     *  5) CommunityDao — UPDATE
-     * =========================== */
-    $rows = $commDao->update_community($communityId, [
-        'Description' => 'Updated description for test community',
-        'Name'        => $communityName . ' (edited)'
-    ]);
-    echo "✅ update_community(): $rows row(s) affected\n";
-
-    /* ===========================
-     *  6) CommunityDao — VERIFY UPDATE
-     * =========================== */
-    $cEdited = $commDao->get_community_by_id($communityId);
-    echo "✅ get_community_by_id() after edit:\n";
-    print_r($cEdited);
-
-    // Also verify getByName with the edited name
-    $cByNameEdited = $commDao->get_community_by_name($cEdited['Name']);
-    echo "✅ get_community_by_name(edited name):\n";
-    print_r($cByNameEdited);
-
-    /* ===========================
-     *  7) CommunityDao — BY OWNER
-     * =========================== */
-    $owned = $commDao->get_communities_by_owner($ownerId);
-    echo "✅ get_communities_by_owner($ownerId): found " . count($owned) . " community(ies)\n";
-
-    /* =====================================
-     *  8) CommunityPostDao — CREATE POST
-     * ===================================== */
-    $cpId = $cpDao->create_post([
+    $communityPostId = $cpDao->create_post([
         'CommunityID' => $communityId,
-        'UserID'      => $ownerId, // author = same temp user
-        'Title'       => 'Hello Community',
-        'Content'     => 'This is a community post body.'
+        'UserID'      => $userId,
+        'Title'       => 'Community post for comment testing',
+        'Content'     => 'Body for community comment testing'
     ]);
-    echo "✅ CommunityPost created with ID: $cpId\n";
+    echo "✅ CommunityPost created with ID: $communityPostId\n";
 
-    /* =====================================
-     *  9) CommunityPostDao — GET ONE
-     * ===================================== */
-    $cpOne = $cpDao->get_post_by_id($cpId);
-    echo "✅ CommunityPost get_post_by_id():\n";
-    print_r($cpOne);
+    /* ===========================
+     * CommunityCommentDao tests
+     * =========================== */
 
-    /* =====================================
-     * 10) CommunityPostDao — GET ALL
-     * ===================================== */
-    $cpAll = $cpDao->get_all_posts();
-    echo "✅ CommunityPost get_all_posts(): total=" . count($cpAll) . " (showing up to 2)\n";
-    print_r(array_slice($cpAll, 0, 2));
-
-    /* =====================================
-     * 11) CommunityPostDao — BY COMMUNITY
-     * ===================================== */
-    $byCommunity = $cpDao->get_posts_by_community($communityId);
-    echo "✅ CommunityPost get_posts_by_community($communityId): found " . count($byCommunity) . " post(s)\n";
-    if (!empty($byCommunity)) { print_r($byCommunity[0]); }
-
-    /* =====================================
-     * 12) CommunityPostDao — UPDATE
-     * ===================================== */
-    $rows = $cpDao->update_post($cpId, [
-        'Title'   => 'Hello Community (edited)',
-        'Content' => 'Updated community post content.'
+    // 1) Create community comment
+    $ccId = $ccDao->create_comment([
+        'CommunityPostID' => $communityPostId,
+        'UserID'          => $userId,
+        'Content'         => 'First community comment'
     ]);
-    echo "✅ CommunityPost update_post(): $rows row(s) affected\n";
+    echo "✅ CommunityComment created with ID: $ccId\n";
 
-    /* =====================================
-     * 13) CommunityPostDao — VERIFY UPDATE
-     * ===================================== */
-    $cpEdited = $cpDao->get_post_by_id($cpId);
-    echo "✅ CommunityPost get_post_by_id() after edit:\n";
-    print_r($cpEdited);
+    // 2) Get by ID
+    $cc1 = $ccDao->get_comment_by_id($ccId);
+    echo "✅ CommunityComment get_comment_by_id():\n";
+    print_r($cc1);
 
-    /* =====================================
-     * Optional cleanup (leave commented if you want to keep data)
-     * ===================================== */
+    // 3) Get by CommunityPostID
+    $ccByPost = $ccDao->getByCommunityPostId($communityPostId);
+    echo "✅ CommunityComment getByCommunityPostId($communityPostId): found " . count($ccByPost) . " comment(s)\n";
+    if (!empty($ccByPost)) { print_r($ccByPost[0]); }
+
+    // 4) Get by UserID
+    $ccByUser = $ccDao->getByUserId($userId);
+    echo "✅ CommunityComment getByUserId($userId): found " . count($ccByUser) . " comment(s)\n";
+    if (!empty($ccByUser)) { print_r($ccByUser[0]); }
+
+    // 5) Get with user info
+    $ccWithUser = $ccDao->getCommentsWithUserInfo($communityPostId);
+    echo "✅ CommunityComment getCommentsWithUserInfo($communityPostId): " . count($ccWithUser) . " row(s)\n";
+    if (!empty($ccWithUser)) { print_r($ccWithUser[0]); }
+
+    // 6) Update community comment
+    $rows = $ccDao->update_comment($ccId, ['Content' => 'First community comment (edited)']);
+    echo "✅ CommunityComment update_comment(): $rows row(s) affected\n";
+
+    // 7) Verify update
+    $cc1e = $ccDao->get_comment_by_id($ccId);
+    echo "✅ CommunityComment after edit:\n";
+    print_r($cc1e);
+
+    /* ===========================
+     * Optional cleanup (commented to keep data)
+     * =========================== */
     /*
-    $delCp   = $cpDao->delete_post($cpId);
-    echo "✅ CommunityPost delete_post(): $delCp row(s) deleted\n";
+    $delCc = $ccDao->delete_comment($ccId);
+    echo "✅ CommunityComment delete_comment(): $delCc row(s) deleted\n";
 
-    $delComm = $commDao->delete_community($communityId);
-    echo "✅ Community delete_community(): $delComm row(s) deleted\n";
+    $delC  = $commDao->delete_community($communityId);
+    echo "✅ Community delete_community(): $delC row(s) deleted\n";
 
-    $delUser = $userDao->delete_user($ownerId);
+    $delCmt = $commentDao->delete_comment($commentId);
+    echo "✅ Comment delete_comment(): $delCmt row(s) deleted\n";
+
+    $delPost = $postDao->delete_post($postId);
+    echo "✅ Post delete_post(): $delPost row(s) deleted\n";
+
+    $delUser = $userDao->delete_user($userId);
     echo "✅ User delete_user(): $delUser row(s) deleted\n";
     */
 
