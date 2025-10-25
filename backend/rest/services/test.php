@@ -1,4 +1,3 @@
-
 <?php
 require_once __DIR__ . '/../dao/UserDao.php';
 require_once __DIR__ . '/../dao/PostDao.php';
@@ -7,6 +6,7 @@ require_once __DIR__ . '/../dao/CommunityPostDao.php';
 require_once __DIR__ . '/../dao/CommentDao.php';
 require_once __DIR__ . '/../dao/CommunityCommentDao.php';
 require_once __DIR__ . '/../dao/LikeDao.php';
+require_once __DIR__ . '/../dao/CommunityLikeDao.php'; // NEW
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -18,6 +18,7 @@ $cpDao       = new CommunityPostDao();
 $commentDao  = new CommentDao();
 $ccDao       = new CommunityCommentDao();
 $likeDao     = new LikeDao();
+$clikeDao    = new CommunityLikeDao(); // NEW
 
 echo "<pre>";
 
@@ -117,21 +118,21 @@ try {
     echo "✅ Like get_likes_with_user_info($postId): " . count($likesWithUser) . " row(s)\n";
     if (!empty($likesWithUser)) { print_r($likesWithUser[0]); }
 
-    // G) Remove like
-    //$removed = $likeDao->remove_like($userId, $postId);
-    //echo "✅ Like remove_like(): removed=" . $removed . " (1 means deleted, 0 means none)\n";
-
-    // H) Verify removal
-    //$hasAfter = $likeDao->has_user_liked_post($userId, $postId);
-    //$countAfter = $likeDao->get_like_count($postId);
-    //echo "✅ Like after removal — has_user_liked_post: " . ($hasAfter ? 'true' : 'false') . ", count: $countAfter\n";
+    // G) (Optional) Remove like & verify
+    /*
+    $removed = $likeDao->remove_like($userId, $postId);
+    echo "✅ Like remove_like(): removed=" . $removed . " (1 means deleted, 0 means none)\n";
+    $hasAfter = $likeDao->has_user_liked_post($userId, $postId);
+    $countAfter = $likeDao->get_like_count($postId);
+    echo "✅ Like after removal — has_user_liked_post: " . ($hasAfter ? 'true' : 'false') . ", count: $countAfter\n";
+    */
 
     /* ===========================
-     * Setup: create Community + CommunityPost (for CommunityComment tests)
+     * Setup: create Community + CommunityPost
      * =========================== */
     $communityId = $commDao->create_community([
         'Name'        => 'Comment Community ' . mt_rand(1000, 9999),
-        'Description' => 'For community comment tests',
+        'Description' => 'For community comment/like tests',
         'OwnerID'     => $userId,
     ]);
     echo "✅ Community created with ID: $communityId\n";
@@ -139,8 +140,8 @@ try {
     $communityPostId = $cpDao->create_post([
         'CommunityID' => $communityId,
         'UserID'      => $userId,
-        'Title'       => 'Community post for comment testing',
-        'Content'     => 'Body for community comment testing'
+        'Title'       => 'Community post for comment/like testing',
+        'Content'     => 'Body for community comment/like testing'
     ]);
     echo "✅ CommunityPost created with ID: $communityPostId\n";
 
@@ -186,32 +187,67 @@ try {
     print_r($cc1e);
 
     /* ===========================
-     * Optional cleanup (commented to keep data)
+     * CommunityLikeDao tests (for the CommunityPost)
+     * =========================== */
+
+    // A) Add like
+    $cadded = $clikeDao->add_like($userId, $communityPostId);
+    echo "✅ CommunityLike add_like(): inserted=" . $cadded . " (1 new, 0 existed)\n";
+
+    // B) Has user liked?
+    $chas = $clikeDao->has_user_liked_post($userId, $communityPostId);
+    echo "✅ CommunityLike has_user_liked_post(): " . ($chas ? 'true' : 'false') . "\n";
+
+    // C) Like count
+    $ccount = $clikeDao->get_like_count($communityPostId);
+    echo "✅ CommunityLike get_like_count($communityPostId): $ccount\n";
+
+    // D) Likes by community post
+    $clikesByPost = $clikeDao->get_by_community_post_id($communityPostId);
+    echo "✅ CommunityLike get_by_community_post_id($communityPostId): found " . count($clikesByPost) . " like(s)\n";
+    if (!empty($clikesByPost)) { print_r($clikesByPost[0]); }
+
+    // E) Likes by user
+    $clikesByUser = $clikeDao->get_by_user_id($userId);
+    echo "✅ CommunityLike get_by_user_id($userId): found " . count($clikesByUser) . " like(s)\n";
+    if (!empty($clikesByUser)) { print_r($clikesByUser[0]); }
+
+    // F) Likes with user info
+    $clikesWithUser = $clikeDao->get_likes_with_user_info($communityPostId);
+    echo "✅ CommunityLike get_likes_with_user_info($communityPostId): " . count($clikesWithUser) . " row(s)\n";
+    if (!empty($clikesWithUser)) { print_r($clikesWithUser[0]); }
+
+    // G) (Optional) Remove like & verify
+    /*
+    $cremoved = $clikeDao->remove_like($userId, $communityPostId);
+    echo "✅ CommunityLike remove_like(): removed=" . $cremoved . " (1 deleted, 0 none)\n";
+    $chasAfter   = $clikeDao->has_user_liked_post($userId, $communityPostId);
+    $ccountAfter = $clikeDao->get_like_count($communityPostId);
+    echo "✅ CommunityLike after removal — has_user_liked_post: " . ($chasAfter ? 'true' : 'false') . ", count: $ccountAfter\n";
+    */
+
+    /* ===========================
+     * Optional cleanup (commented)
      * =========================== */
     /*
+    // CommunityLike cleanup
+    $clikeDao->add_like($userId, $communityPostId);
+    $clikeDao->remove_like($userId, $communityPostId);
+
     // Like cleanup
-    $likeDao->add_like($userId, $postId); // re-like to ensure a record to remove if needed
+    $likeDao->add_like($userId, $postId);
     $likeDao->remove_like($userId, $postId);
 
-    // Comment cleanup
-    $delCmt = $commentDao->delete_comment($commentId);
-    echo "✅ Comment delete_comment(): $delCmt row(s) deleted\n";
+    // Comments cleanup
+    $commentDao->delete_comment($commentId);
+    $ccDao->delete_comment($ccId);
 
-    // Community comment cleanup
-    $delCc = $ccDao->delete_comment($ccId);
-    echo "✅ CommunityComment delete_comment(): $delCc row(s) deleted\n";
-
-    // Post cleanup
-    $delPost = $postDao->delete_post($postId);
-    echo "✅ Post delete_post(): $delPost row(s) deleted\n";
-
+    // Posts cleanup
+    $postDao->delete_post($postId);
     // Community cleanup
-    $delComm = $commDao->delete_community($communityId);
-    echo "✅ Community delete_community(): $delComm row(s) deleted\n";
-
+    $commDao->delete_community($communityId);
     // User cleanup
-    $delUser = $userDao->delete_user($userId);
-    echo "✅ User delete_user(): $delUser row(s) deleted\n";
+    $userDao->delete_user($userId);
     */
 
 } catch (Exception $e) {
