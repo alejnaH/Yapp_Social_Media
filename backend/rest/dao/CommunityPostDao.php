@@ -13,40 +13,40 @@ class CommunityPostDao extends BaseDao {
         }
 
         $data = [
-            'CommunityID' => $post['CommunityID'],
-            'UserID'      => $post['UserID'],
+            'CommunityID' => (int)$post['CommunityID'],
+            'UserID'      => (int)$post['UserID'],
             'Title'       => $post['Title'],
             'Content'     => $post['Content'],
             // TimeOfPost, UpdatedAt handled by DB
         ];
+
         return $this->insert($data);
     }
 
     /* UPDATE */
-    public function update_post(int $community_post_id, array $data): int {
+    public function update_post(int $communityPostId, array $data): int {
         $allowed = [];
-        if (isset($data['Title']))   { $allowed['Title'] = $data['Title']; }
-        if (isset($data['Content'])) { $allowed['Content'] = $data['Content']; }
+        if (isset($data['Title']))   $allowed['Title'] = $data['Title'];
+        if (isset($data['Content'])) $allowed['Content'] = $data['Content'];
 
-        if (empty($allowed)) return 0;
-        return $this->updateById($community_post_id, $allowed);
+        return empty($allowed) ? 0 : $this->updateById($communityPostId, $allowed);
     }
 
     /* DELETE */
-    public function delete_post(int $community_post_id): int {
-        return $this->deleteById($community_post_id);
+    public function delete_post(int $communityPostId): int {
+        return $this->deleteById($communityPostId);
     }
 
-    /* GET */
+    /* GET (all posts global) */
     public function get_all_posts(): array {
-        $stmt = $this->connection->prepare(
-            "SELECT * FROM `CommunityPost` ORDER BY `TimeOfPost` DESC, `CommunityPostID` DESC"
-        );
+        $sql = "SELECT * FROM `CommunityPost`
+                ORDER BY `TimeOfPost` DESC, `CommunityPostID` DESC";
+        $stmt = $this->connection->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
     }
 
-    /** GET all posts for a given CommunityID (with basic user info) */
+    /* GET all posts in one community with user info */
     public function get_posts_by_community(int $communityId): array {
         $sql = "SELECT cp.*, u.Username, u.FullName AS UserFullName
                 FROM `CommunityPost` cp
@@ -56,18 +56,11 @@ class CommunityPostDao extends BaseDao {
         $stmt = $this->connection->prepare($sql);
         $stmt->bindValue(':cid', $communityId, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
     }
 
-    /** GET one CommunityPost by ID */
-    public function get_post_by_id(int $community_post_id): ?array {
-        $stmt = $this->connection->prepare(
-            "SELECT * FROM `CommunityPost` WHERE `CommunityPostID` = :id"
-        );
-        $stmt->bindValue(':id', $community_post_id, PDO::PARAM_INT);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row === false ? null : $row;
+    /* GET one post by ID */
+    public function get_post_by_id(int $communityPostId): ?array {
+        return $this->getById($communityPostId);
     }
 }
-?>

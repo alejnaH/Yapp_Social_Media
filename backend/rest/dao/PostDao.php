@@ -12,7 +12,7 @@ class PostDao extends BaseDao {
             throw new InvalidArgumentException("UserID, Title and Content are required to create a post.");
         }
         $data = [
-            'UserID'  => $post['UserID'],
+            'UserID'  => (int)$post['UserID'],
             'Title'   => $post['Title'],
             'Content' => $post['Content'],
             // TimeOfPost, UpdatedAt handled by DB
@@ -20,52 +20,45 @@ class PostDao extends BaseDao {
         return $this->insert($data);
     }
 
-    /* UPDATE Post (Title/Content only) */
-    public function edit_post(int $post_id, array $data): int {
+    /* UPDATE Post */
+    public function edit_post(int $postId, array $data): int {
         $allowed = [];
-        if (isset($data['Title']))   { $allowed['Title'] = $data['Title']; }
-        if (isset($data['Content'])) { $allowed['Content'] = $data['Content']; }
-
-        if (empty($allowed)) return 0;
-        return $this->updateById($post_id, $allowed);
+        if (isset($data['Title']))   $allowed['Title'] = $data['Title'];
+        if (isset($data['Content'])) $allowed['Content'] = $data['Content'];
+        return empty($allowed) ? 0 : $this->updateById($postId, $allowed);
     }
 
     /* DELETE Post */
-    public function delete_post(int $post_id): int {
-        return $this->deleteById($post_id);
+    public function delete_post(int $postId): int {
+        return $this->deleteById($postId);
     }
 
-    /* GET one Post */
-    public function get_one_post(int $post_id): ?array {
-        $stmt = $this->connection->prepare("SELECT * FROM `Post` WHERE `PostID` = :id");
-        $stmt->bindValue(':id', $post_id, PDO::PARAM_INT);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row === false ? null : $row;
+    /* GET single Post */
+    public function get_one_post(int $postId): ?array {
+        return $this->getById($postId);
     }
 
     /* GET all Posts (newest first) */
     public function get_all_posts(): array {
-        $stmt = $this->connection->prepare(
-            "SELECT * FROM `Post` ORDER BY `TimeOfPost` DESC, `PostID` DESC"
-        );
+        $sql = "SELECT * FROM `Post`
+                ORDER BY `TimeOfPost` DESC, `PostID` DESC";
+        $stmt = $this->connection->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
     }
 
-    /* EXTRA HELPERS */
-
-    /* Posts by a given UserID */
+    /* Posts by a specific UserID */
     public function getByUserId(int $userId): array {
-        $stmt = $this->connection->prepare(
-            "SELECT * FROM `Post` WHERE `UserID` = :userId ORDER BY `TimeOfPost` DESC, `PostID` DESC"
-        );
+        $sql = "SELECT * FROM `Post`
+                WHERE `UserID` = :userId
+                ORDER BY `TimeOfPost` DESC, `PostID` DESC";
+        $stmt = $this->connection->prepare($sql);
         $stmt->bindValue(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
     }
 
-    /* Posts with author info and like counts; marks if current user liked */
+    /* Posts with user info and like counts */
     public function getPostsWithUserInfo(?int $currentUserId = null): array {
         if ($currentUserId !== null) {
             $sql = "SELECT
@@ -96,10 +89,10 @@ class PostDao extends BaseDao {
             $stmt = $this->connection->prepare($sql);
         }
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
     }
 
-    /* One post + user + counts for comments/likes */
+    /* Single post with comment and like counts */
     public function getPostWithDetails(int $postId): ?array {
         $sql = "SELECT
                     p.*,
@@ -120,12 +113,9 @@ class PostDao extends BaseDao {
         return $row === false ? null : $row;
     }
 
-    /* Community posts (uses CommunityPost table per your schema) */
+    /* Community posts (different table) */
     public function getPostsByCommunity(int $communityId): array {
-        $sql = "SELECT
-                    cp.*,
-                    u.Username,
-                    u.FullName AS UserFullName
+        $sql = "SELECT cp.*, u.Username, u.FullName AS UserFullName
                 FROM `CommunityPost` cp
                 JOIN `User` u ON cp.UserID = u.UserID
                 WHERE cp.CommunityID = :communityId
@@ -133,6 +123,7 @@ class PostDao extends BaseDao {
         $stmt = $this->connection->prepare($sql);
         $stmt->bindValue(':communityId', $communityId, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
     }
 }
+?>

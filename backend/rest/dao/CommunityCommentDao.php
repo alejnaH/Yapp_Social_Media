@@ -3,10 +3,10 @@ require_once __DIR__ . '/BaseDao.php';
 
 class CommunityCommentDao extends BaseDao {
     public function __construct() {
-        parent::__construct("CommunityComment");
+        parent::__construct('CommunityComment'); // PK -> CommunityCommentID
     }
 
-    /*CREATE */
+    /* CREATE */
     public function create_comment(array $comment): int {
         if (!isset($comment['CommunityPostID'], $comment['UserID'], $comment['Content'])) {
             throw new InvalidArgumentException("CommunityPostID, UserID and Content are required.");
@@ -16,13 +16,12 @@ class CommunityCommentDao extends BaseDao {
             'CommunityPostID' => (int)$comment['CommunityPostID'],
             'UserID'          => (int)$comment['UserID'],
             'Content'         => $comment['Content'],
-            
+            // Time/UpdatedAt handled by DB defaults
         ];
-
-        return $this->insert($data);
+        return $this->insert($data); // BaseDao
     }
 
-        /* UPDATE */
+    /* UPDATE */
     public function update_comment(int $commentId, array $data): int {
         $allowed = [];
         if (isset($data['Content'])) {
@@ -31,26 +30,20 @@ class CommunityCommentDao extends BaseDao {
 
         if (empty($allowed)) return 0;
 
-        return $this->updateById($commentId, $allowed);
+        return $this->updateById($commentId, $allowed); // BaseDao
     }
 
     /* DELETE */
     public function delete_comment(int $commentId): int {
-        return $this->deleteById($commentId);
+        return $this->deleteById($commentId); // BaseDao
     }
 
-    /*GET */
+    /* GET by ID (delegate to BaseDao) */
     public function get_comment_by_id(int $commentId): ?array {
-        $stmt = $this->connection->prepare("SELECT * FROM `CommunityComment` WHERE `CommunityCommentID` = :id");
-        $stmt->bindValue(':id', $commentId, PDO::PARAM_INT);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row === false ? null : $row;
+        return $this->getById($commentId); // BaseDao
     }
 
-    /**
-     * Get comments for a specific community post.
-     */
+    /* List comments for a specific community post (custom ordering) */
     public function getByCommunityPostId(int $communityPostId): array {
         $stmt = $this->connection->prepare(
             "SELECT * FROM `CommunityComment`
@@ -59,12 +52,10 @@ class CommunityCommentDao extends BaseDao {
         );
         $stmt->bindValue(':pid', $communityPostId, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(); // FETCH_ASSOC set in BaseDao
     }
 
-    /**
-     * Get comments made by a user across all community posts.
-     */
+    /* List comments by a user across all community posts (custom ordering) */
     public function getByUserId(int $userId): array {
         $stmt = $this->connection->prepare(
             "SELECT * FROM `CommunityComment`
@@ -73,12 +64,10 @@ class CommunityCommentDao extends BaseDao {
         );
         $stmt->bindValue(':uid', $userId, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
     }
 
-    /**
-     * Get comments for a community post with user info.
-     */
+    /* Join with user info for a community post (table-specific) */
     public function getCommentsWithUserInfo(int $communityPostId): array {
         $sql = "SELECT
                     cc.*,
@@ -91,7 +80,7 @@ class CommunityCommentDao extends BaseDao {
         $stmt = $this->connection->prepare($sql);
         $stmt->bindValue(':pid', $communityPostId, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
     }
 
 }

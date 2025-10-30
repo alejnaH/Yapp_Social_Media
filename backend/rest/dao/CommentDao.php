@@ -3,11 +3,10 @@ require_once __DIR__ . '/BaseDao.php';
 
 class CommentDao extends BaseDao {
     public function __construct() {
-        // Match exact table casing from your schema
-        parent::__construct("Comment");
+        parent::__construct('Comment'); // PK -> CommentID
     }
 
-    /*CREATE */
+    /* CREATE */
     public function create_comment(array $comment): int {
         if (!isset($comment['PostID'], $comment['UserID'], $comment['Content'])) {
             throw new InvalidArgumentException("PostID, UserID and Content are required.");
@@ -17,42 +16,34 @@ class CommentDao extends BaseDao {
             'PostID'  => (int)$comment['PostID'],
             'UserID'  => (int)$comment['UserID'],
             'Content' => $comment['Content'],
-            // Time and UpdatedAt handled by DB
+            // Time / UpdatedAt handled by DB defaults
         ];
 
-        return $this->insert($data);
+        return $this->insert($data); // BaseDao
     }
     
-      /* UPDATE */
+    /* UPDATE */
     public function update_comment(int $commentId, array $data): int {
         $allowed = [];
         if (isset($data['Content'])) {
             $allowed['Content'] = $data['Content'];
         }
+        if (empty($allowed)) return 0;
 
-        if (empty($allowed)) {
-            return 0; 
-        }
-
-        return $this->updateById($commentId, $allowed);
+        return $this->updateById($commentId, $allowed); // BaseDao
     }
 
-    /* DELETE*/
+    /* DELETE */
     public function delete_comment(int $commentId): int {
-        return $this->deleteById($commentId);
+        return $this->deleteById($commentId); // BaseDao
     }
 
-    /* GET */
+    /* GET by ID */
     public function get_comment_by_id(int $commentId): ?array {
-        $stmt = $this->connection->prepare("SELECT * FROM `Comment` WHERE `CommentID` = :id");
-        $stmt->bindValue(':id', $commentId, PDO::PARAM_INT);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row === false ? null : $row;
+        return $this->getById($commentId); // BaseDao
     }
 
-    /* Get comments for a post (newest first or by time — choose your order).
-     * Here: chronological by `Time`, then `CommentID`.*/
+    /* List comments for a post (custom ordering) */
     public function getByPostId(int $postId): array {
         $stmt = $this->connection->prepare(
             "SELECT * FROM `Comment`
@@ -61,10 +52,10 @@ class CommentDao extends BaseDao {
         );
         $stmt->bindValue(':postId', $postId, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(); // default FETCH_ASSOC from BaseDao ctor
     }
 
-   
+    /* List comments by a user (custom ordering) */
     public function getByUserId(int $userId): array {
         $stmt = $this->connection->prepare(
             "SELECT * FROM `Comment`
@@ -73,10 +64,10 @@ class CommentDao extends BaseDao {
         );
         $stmt->bindValue(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
     }
 
-
+    /* Join with user info (table-specific) */
     public function getCommentsWithUserInfo(int $postId): array {
         $sql = "SELECT
                     c.*,
@@ -89,7 +80,7 @@ class CommentDao extends BaseDao {
         $stmt = $this->connection->prepare($sql);
         $stmt->bindValue(':postId', $postId, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
     }
 
 }
