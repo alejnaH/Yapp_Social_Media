@@ -121,6 +121,26 @@
     
     body {
   background-color: #f5eef1; /* light gray-blue */
+
+  /*Admin button*/
+
+  .yapp-action-link {
+      color: #007bff; /* Bootstrap primary blue */
+      font-weight: 500;
+      transition: color 0.2s ease;
+      text-decoration: none;
+    }
+
+    .yapp-action-link:hover {
+      color: #0056b3; /* Darker blue on hover */
+      text-decoration: underline;
+    }
+
+    /* Slightly smaller caption for the corner links */
+    .yapp-edit-caption,
+    .yapp-admin-caption {
+      font-size: 0.9rem;
+    }
 }
 
   /*Login Page*/
