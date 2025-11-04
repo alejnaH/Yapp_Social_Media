@@ -1,4 +1,4 @@
-<?php
+<?php 
 require_once __DIR__ . '/../dao/UserDao.php';
 require_once __DIR__ . '/../dao/PostDao.php';
 require_once __DIR__ . '/../dao/LikeDao.php';
