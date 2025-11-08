@@ -1,25 +1,32 @@
 <?php
-/*Lab material code*/
-require_once 'BaseDao.php';
+/* Lab material code (fixed) */
+require_once __DIR__ . '/../dao/BaseDao.php';
+
 class BaseService {
-   protected $dao;
-   public function __construct($dao) {
-       $this->dao = $dao;
-   }
-   public function getAll() {
-       return $this->dao->getAll();
-   }
-   public function getById($id) {
-       return $this->dao->getById($id);
-   }
-   public function create($data) {
-       return $this->dao->insert($data);
-   }
- public function update($id, $data) {
-       return $this->dao->update($id, $data);
-   }
-   public function delete($id) {
-       return $this->dao->delete($id);
-   }
+    protected $dao;
+
+    public function __construct($dao) {
+        $this->dao = $dao;
+    }
+
+    public function getAll() {
+        return $this->dao->getAll();
+    }
+
+    public function getById(int $id) {
+        return $this->dao->getById($id);
+    }
+
+    public function create(array $data) {
+        return $this->dao->insert($data);
+    }
+
+    public function update(int $id, array $data) {
+        return $this->dao->updateById($id, $data);
+    }
+
+    public function delete(int $id) {
+        return $this->dao->deleteById($id);
+    }
 }
 ?>
