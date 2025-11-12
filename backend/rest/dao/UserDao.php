@@ -1,13 +1,12 @@
 <?php
 require_once __DIR__ . '/BaseDao.php';
 
-
 class UserDao extends BaseDao {
     public function __construct() {
         parent::__construct('User');
     }
 
-    /* CREATE User  */
+    /* CREATE User */
     public function create_user(array $user): int {
         return $this->createUser($user);
     }
@@ -35,7 +34,7 @@ class UserDao extends BaseDao {
         $stmt = $this->connection->prepare("SELECT * FROM `User` WHERE `Email` = :email");
         $stmt->bindValue(':email', $email);
         $stmt->execute();
-        $row = $stmt->fetch();
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row === false ? null : $row;
     }
 
@@ -43,8 +42,14 @@ class UserDao extends BaseDao {
         $stmt = $this->connection->prepare("SELECT * FROM `User` WHERE `Username` = :username");
         $stmt->bindValue(':username', $username);
         $stmt->execute();
-        $row = $stmt->fetch();
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row === false ? null : $row;
     }
+
+    /* GET all users (PDO direct) */
+    public function get_all_users(): array {
+        $stmt = $this->connection->prepare("SELECT * FROM `User`");
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }
-?>

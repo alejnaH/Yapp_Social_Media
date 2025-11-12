@@ -58,5 +58,9 @@ class UserService {
         }
         return $this->userDao->getByUsername($username);
     }
+    
+    public function get_all() {
+        return $this->userDao->get_all_users();
+    }
 }
 ?>
