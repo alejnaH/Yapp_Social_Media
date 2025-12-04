@@ -17,13 +17,12 @@ class AuthDao extends BaseDao {
 
 
    public function __construct() {
-       $this->table_name = "users";
+       $this->table_name = "User";
        parent::__construct($this->table_name);
    }
 
-
-   public function get_user_by_email($email) {
-       $query = "SELECT * FROM " . $this->table_name . " WHERE email = :email";
-       return $this->query_unique($query, ['email' => $email]);
-   }
+      public function get_user_by_email(string $email): ?array {
+        $query = "SELECT * FROM `User` WHERE Email = :email";
+        return $this->query_unique($query, ['email' => $email]);
+    }
 }

@@ -26,10 +26,17 @@ class AuthService extends BaseService {
             return ['success' => false, 'error' => 'Email already registered.'];
         }
 
-        $entity['password'] = password_hash($entity['password'], PASSWORD_BCRYPT);
-            $id = $this->auth_dao->insert($entity);
+        $data = [
+                'Username' => $entity['name'],
+                'FullName' => $entity['name'],
+                'Email'    => $entity['email'],
+                'Password' => password_hash($entity['password'], PASSWORD_BCRYPT),
+                'Role'     => $entity['role'] ?? 'user'
+];
+
+$id = $this->auth_dao->insert($data);
             $entity = $this->auth_dao->getById($id);
-        unset($entity['password']);
+        unset($entity['Password']);
         return ['success' => true, 'data' => $entity];
     }
 
@@ -43,10 +50,10 @@ class AuthService extends BaseService {
            return ['success' => false, 'error' => 'Invalid username or password.'];
        }
 
-       if(!$user || !password_verify($entity['password'], $user['password']))
+       if(!$user || !password_verify($entity['password'], $user['Password']))
            return ['success' => false, 'error' => 'Invalid username or password.'];
 
-       unset($user['password']);
+       unset($user['Password']);
        $jwt_payload = [
            'user' => $user,
            'iat' => time(),
