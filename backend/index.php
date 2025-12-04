@@ -32,6 +32,10 @@ Flight::register('likeService', 'LikeService');
 require_once __DIR__ . '/rest/services/SubscriptionService.php';
 Flight::register('subscriptionService', 'SubscriptionService');
 
+require 'rest/services/AuthService.php';
+Flight::register('auth_service', "AuthService");
+
+
 
 // ROUTES
 require_once __DIR__ . '/rest/routes/UserRoutes.php';
@@ -44,6 +48,9 @@ require_once __DIR__ . '/rest/routes/CommunityRoutes.php';
 require_once __DIR__ . '/rest/routes/FollowRoutes.php';
 require_once __DIR__ . '/rest/routes/LikeRoutes.php';
 require_once __DIR__ . '/rest/routes/SubscriptionRoutes.php';
+require_once __DIR__ . '/rest/routes/AuthRoutes.php';
+
+
 
 
 
