@@ -1,5 +1,5 @@
 <?php
 class Roles {
-    public const USER  = 'USER';
-    public const ADMIN = 'ADMIN';
+    public const USER  = 'user';
+    public const ADMIN = 'admin';
 }

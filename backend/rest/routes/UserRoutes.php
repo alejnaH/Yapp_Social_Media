@@ -13,6 +13,7 @@
  * )
  */
 Flight::route('GET /users', function() {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::userService()->get_all());
 });
 
@@ -35,6 +36,7 @@ Flight::route('GET /users', function() {
  * )
  */
 Flight::route('GET /users/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::userService()->get_user_by_id($id));
 });
 
@@ -57,9 +59,9 @@ Flight::route('GET /users/@id', function($id) {
  * )
  */
 Flight::route('GET /users/email/@email', function($email) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::userService()->get_by_email($email));
 });
-
 /**
  * @OA\Get(
  *     path="/users/username/{username}",
@@ -79,9 +81,9 @@ Flight::route('GET /users/email/@email', function($email) {
  * )
  */
 Flight::route('GET /users/username/@username', function($username) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::userService()->get_by_username($username));
 });
-
 /**
  * @OA\Post(
  *     path="/users",
@@ -139,6 +141,13 @@ Flight::route('POST /users', function() {
  * )
  */
 Flight::route('PUT /users/@id', function($id) {
+    $currentUser = Flight::get('user'); // from JWT
+    
+    // If the current user is not the same as the ID, block
+    if ($currentUser->UserID != $id) {
+        Flight::halt(403, "You can only edit your own profile.");
+    }
+    
     $data = Flight::request()->data->getData();
     Flight::json(Flight::userService()->update_user($id, $data));
 });
@@ -163,5 +172,6 @@ Flight::route('PUT /users/@id', function($id) {
  * )
  */
 Flight::route('DELETE /users/@id', function($id) {
+    Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
     Flight::json(Flight::userService()->delete_user($id));
 });
