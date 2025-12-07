@@ -49,22 +49,30 @@ Flight::register('auth_service', "AuthService");
 
 Flight::register('auth_middleware', 'AuthMiddleware');
 
-
-Flight::route('/*', function() {
-   if(
-       strpos(Flight::request()->url, '/auth/login') === 0 ||
-       strpos(Flight::request()->url, '/auth/register') === 0
-   ) {
-       return TRUE;
-   } else {
-       try {
-           $token = Flight::request()->getHeader("Authorization");
-           if(Flight::auth_middleware()->verifyToken($token))
-               return TRUE;
-       } catch (\Exception $e) {
-           Flight::halt(401, $e->getMessage());
-       }
-   }
+Flight::before('start', function(&$params, &$output) {
+    $url = Flight::request()->url;
+    
+    // Skip auth for public routes
+    if (
+        strpos($url, '/auth/login') === 0 ||
+        strpos($url, '/auth/register') === 0
+    ) {
+        return TRUE;
+    }
+    
+    // For all other routes, verify token
+    // I had to do this since the jwt token verification was not working properly and I was getting errors on protected routes
+    try {
+        $token = Flight::request()->getHeader("Authentication");
+        
+        if (!$token) {
+            Flight::halt(401, "Missing Authentication header");
+        }
+        Flight::auth_middleware()->verifyToken($token);
+        
+    } catch (Exception $e) {
+        Flight::halt(401, "Invalid token: " . $e->getMessage());
+    }
 });
 
 
