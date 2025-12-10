@@ -9,10 +9,10 @@
                         <div id="login-alerts"></div>
                         <form id="loginForm">
                             <div class="mb-3">
-                                <input type="email" id="username" class="form-control" placeholder="Email" required>
+                                <input type="email" id="username" name="email" class="form-control" placeholder="Email" required>
                             </div>
                             <div class="mb-3">
-                                <input type="password" id="password" class="form-control" placeholder="Password" required>
+                                <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
                             </div>
                             <button type="submit" class="btn btn-primary" id="loginButton">
                                 <span class="login-text">Log In</span>
@@ -35,5 +35,27 @@
         </div>
     </div>
 </section>
+<script src="../frontend/utils/constants.js"></script>
+<script src="../frontend/utils/rest-client.js"></script>
+<script>
+     $("#loginForm").on("submit", function(event) {
+        event.preventDefault();
+        var formData = $(this).serializeArray();
+        var formDataObject = {};
+        $.each(formData, function(i, field){
+            formDataObject[field.name] = field.value;
+        });
+
+        var jsonString = JSON.stringify(formDataObject);
+        RestClient.post("auth/login", jsonString, function(response){
+            if(response.success){
+                alert("Logged in!");
+                console.log(response)
+                window.location.replace("http://localhost/Yapp/frontend/index.html#dashboard");
+                localStorage.setItem("token", response.data.token)
+            }
+        })
+    });
+</script>
 </body>
 

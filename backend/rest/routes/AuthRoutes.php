@@ -23,19 +23,20 @@ Flight::group('/auth', function() {
      * )
      */
     Flight::route('POST /register', function () {
-        $data = json_decode(Flight::request()->getBody(), true);
-        if (!is_array($data)) {
+        $data = Flight::request()->data->getData();
+         if (!is_array($data)) {
             Flight::halt(400, 'Invalid request payload');
         }
 
         $response = Flight::auth_service()->register($data);
         if ($response['success']) {
             Flight::json([
+                "success" => true,
                 'message' => 'User registered successfully',
                 'data' => $response['data']
             ]);
         } else {
-            Flight::halt(500, $response['error']);
+            Flight::halt(500, $response);
         }
     });
 
@@ -70,6 +71,7 @@ Flight::group('/auth', function() {
 
     if ($response['success']) {
         Flight::json([
+            "success" => true,
             'message' => 'User logged in successfully',
             'data' => $response['data']
         ]);

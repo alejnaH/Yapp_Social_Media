@@ -17,9 +17,14 @@ class AuthService extends BaseService {
    }
 
    public function register($entity) {
-        if (empty($entity['name']) || empty($entity['email']) || empty($entity['password'])) {
+        if (empty($entity['username']) || empty($entity['fullname']) || empty($entity['email']) || empty($entity['password']) || empty($entity['password2'])) {
             return ['success' => false, 'error' => 'Name, email, and password are required.'];
         }
+
+        if($entity['password'] !== $entity['password2']){
+            return ['success' => false, 'error' => 'Passwords dont match.'];
+        }
+        // TODO  CREATE A CHECK I.E. USE USER SERVICE TO GET POTENTIAL USER FROM DB BY USERNAME. IF EXISTS, RETURN ERROR MSG
 
         $email_exists = $this->auth_dao->get_user_by_email($entity['email']);
         if ($email_exists) {
@@ -27,11 +32,11 @@ class AuthService extends BaseService {
         }
 
         $data = [
-                'Username' => $entity['name'],
-                'FullName' => $entity['name'],
+                'Username' => $entity['username'],
+                'FullName' => $entity['fullname'],
                 'Email'    => $entity['email'],
                 'Password' => password_hash($entity['password'], PASSWORD_BCRYPT),
-                'Role'     => $entity['role'] ?? 'user'
+                'Role'     => 'user'
 ];
 
 $id = $this->auth_dao->insert($data);
