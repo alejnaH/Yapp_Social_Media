@@ -1,59 +1,117 @@
 var UserService = {
-    init: function () {
-        var token = localStorage.getItem("user_token");
-        if (token) {
-            if (typeof app !== "undefined" && app.navigateTo) {
-                app.navigateTo("dashboard");
+    
+    // Initialize (called on app start)
+    init: function() {
+        // Any initialization logic if needed
+        console.log("UserService initialized");
+    },
+    
+    // Login
+    login: function(email, password) {
+        console.log("UserService.login called with:", email);
+        
+        const credentials = {
+            email: email,
+            password: password
+        };
+        
+        console.log("Sending POST to auth/login");
+        
+        RestClient.post("auth/login", JSON.stringify(credentials), function(data) {
+            console.log("Login response:", data);
+            
+            // Backend returns: { success: true, data: { token: "..." } }
+            const token = data.data ? data.data.token : data.token;
+            
+            if (token) {
+                localStorage.setItem("user_token", token);
+                toastr.success("Login successful!");
+                window.location.hash = "#dashboard";
             } else {
-                window.location.replace("index.html");
+                console.error("No token in response:", data);
+                toastr.error("Login failed - no token received");
             }
-            return; 
+        }, function(error) {
+            console.error("Login error:", error);
+            toastr.error("Invalid email or password");
+        });
+    },
+
+    
+    // Logout
+    logout: function() {
+        localStorage.removeItem("user_token");
+        toastr.success("Logged out successfully");
+        window.location.hash = "#login";
+    },
+    
+    // Get current user profile
+    getCurrentUserProfile: function(callback) {
+        const token = localStorage.getItem("user_token");
+        if (!token) {
+            window.location.hash = "#login";
+            return;
         }
-
-        $("#loginForm").validate({
-            submitHandler: function (form) {
-                var entity = Object.fromEntries(new FormData(form).entries());
-                UserService.login(entity);
-            },
+        
+        const payload = Utils.parseJwt(token);
+        const userId = payload.user.UserID;
+        
+        RestClient.get(`users/${userId}`, function(user) {
+            if (callback) callback(user);
+        }, function(error) {
+            toastr.error("Failed to load profile");
+            console.error(error);
         });
     },
-
-    login: function (entity) {
-        $.ajax({
-            url: Constants.PROJECT_BASE_URL + "auth/login",
-            type: "POST",
-            data: JSON.stringify(entity),
-            contentType: "application/json",
-            dataType: "json",
-            success: function (result) {
-                console.log(result);
-                if (!result || !result.data || !result.data.token) {
-                    toastr.error("Invalid server response.");
-                    return;
-                }
-                localStorage.setItem("user_token", result.data.token);
-
-                toastr.success("Successfully logged in!");
-                if (typeof app !== "undefined" && app.navigateTo) {
-                    app.navigateTo("dashboard");
-                } else {
-                    window.location.replace("index.html");
-                }
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                var msg =
-                    (XMLHttpRequest.responseJSON &&
-                        (XMLHttpRequest.responseJSON.message ||
-                         XMLHttpRequest.responseJSON.error)) ||
-                    XMLHttpRequest.responseText ||
-                    "Error";
-                toastr.error(msg);
-            },
+    
+    // Update user profile
+    updateProfile: function(userId, fullName, bio, callback) {
+        const userData = {
+            FullName: fullName,
+            Bio: bio
+        };
+        
+        RestClient.put(`users/${userId}`, JSON.stringify(userData), function(response) {
+            toastr.success("Profile updated successfully!");
+            if (callback) callback(response);
+        }, function(error) {
+            toastr.error("Failed to update profile");
+            console.error(error);
         });
     },
-
-    logout: function () {
-        localStorage.clear();
-        window.location.replace("login.html");
+    
+    // Get user statistics
+    getUserStats: function(userId, callback) {
+        // Get post count
+        RestClient.get(`posts/user/${userId}`, function(posts) {
+            const postCount = posts ? posts.length : 0;
+            
+            // Get comment count
+            RestClient.get(`comments/user/${userId}`, function(comments) {
+                const commentCount = comments ? comments.length : 0;
+                
+                // Get like count (likes given by user)
+                RestClient.get(`likes/user/${userId}`, function(likes) {
+                    const likeCount = likes ? likes.length : 0;
+                    
+                    if (callback) {
+                        callback({
+                            posts: postCount,
+                            comments: commentCount,
+                            likes: likeCount
+                        });
+                    }
+                }, function(error) {
+                    console.error("Failed to load likes:", error);
+                    if (callback) callback({ posts: postCount, comments: commentCount, likes: 0 });
+                });
+            }, function(error) {
+                console.error("Failed to load comments:", error);
+                if (callback) callback({ posts: postCount, comments: 0, likes: 0 });
+            });
+        }, function(error) {
+            console.error("Failed to load posts:", error);
+            if (callback) callback({ posts: 0, comments: 0, likes: 0 });
+        });
     }
 };

@@ -62,6 +62,30 @@ Flight::route('GET /community-posts/community/@community_id', function($communit
 });
 
 /**
+ * @OA\Get(
+ *     path="/community-posts/subscribed/{user_id}",
+ *     tags={"community-posts"},
+ *     summary="Get posts from communities the user is subscribed to",
+ *     @OA\Parameter(
+ *         name="user_id",
+ *         in="path",
+ *         required=true,
+ *         description="User ID",
+ *         @OA\Schema(type="integer", example=3)
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Array of posts from subscribed communities with community names"
+ *     )
+ * )
+ */
+Flight::route('GET /community-posts/subscribed/@user_id', function($user_id) {
+    Flight::json(
+        Flight::communityPostService()->get_posts_from_subscribed_communities((int)$user_id)
+    );
+});
+
+/**
  * @OA\Post(
  *     path="/community-posts",
  *     tags={"community-posts"},

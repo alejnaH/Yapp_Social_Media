@@ -9,18 +9,21 @@
     <title>Yapp</title>
     <meta name="description" content="Simple HTML5 Page layout template with header, footer, sidebar etc.">
 
-
-<!-- <link rel="stylesheet" href="./assets/css/style.css">-->
+    <!-- <link rel="stylesheet" href="./assets/css/style.css">-->
     <link rel="stylesheet" href="assets/css/spapp.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="assets/css/custom.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     <script src="assets/js/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="assets/js/jquery.spapp.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.js"></script>
+
     <!-- Custom JS -->
-   <!-- REMOVE this line -- <script src="assets/js/form-validation.js"></script> -->
+    <!-- REMOVE this line -- <script src="assets/js/form-validation.js"></script> -->
     
     <!-- Ajax Calls JS -->
     <script src="assets/js/script.js"></script>
@@ -28,8 +31,8 @@
 </head>
 
 <body>
-   <!-- Navigation -->
-<header>
+    <!-- Navigation -->
+    <header>
         <nav role="navigation">
             <nav id="navbar" class="navbar bg-body-tertiary navbar-edit">
                 <div class="container-fluid">
@@ -51,16 +54,14 @@
                                 <li><a class="dropdown-item" href="#explore-communities">Communities</a></li>
                             </ul>
                         </div>
-                        <button type="button" class="btn btn-outline-danger button-login fw-bold">
-                        Sign Out
+                        <button type="button" class="btn btn-outline-danger button-login fw-bold" onclick="UserService.logout()">
+                            Sign Out
                         </button>
-                        </a>
                     </form>
                 </div>
             </nav>
         </nav>
-
-        </header>
+    </header>
 
 
 <section id="pageContent">
@@ -75,6 +76,7 @@
         <section id="my-communities" data-load="my-communities.html"></section>
         <section id="community-post" data-load="community-post.html"></section>
         <section id="admin" data-load="admin.html"></section>
+        <section id="edit-profile" data-load="edit-profile.html"></section>
 
 
             </main>
@@ -88,24 +90,343 @@
                     <h5 class="modal-title" id="writePostModalLabel">Write a Post</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <textarea class="form-control" rows="5" maxlength="120" placeholder="Write your post here... (max 120 characters)"></textarea>
+                <form id="createPostForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" name="title" placeholder="Post title..." maxlength="100" required>
+                        </div>
+                        <div>
+                            <textarea class="form-control" name="content" rows="5" maxlength="500" placeholder="What's on your mind? (max 500 characters)" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Post</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Post Modal -->
+    <div class="modal fade" id="editPostModal" tabindex="-1" role="dialog" aria-labelledby="editPostModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPostModalLabel">Edit Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary">Post</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Dismiss</button>
+                <form id="editPostForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" name="title" placeholder="Post title..." maxlength="100" required>
+                        </div>
+                        <div>
+                            <textarea class="form-control" name="content" rows="5" maxlength="500" placeholder="Post content..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Community Modal -->
+    <div class="modal fade" id="createCommunityModal" tabindex="-1" aria-labelledby="createCommunityLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createCommunityLabel">Create community</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <form id="createCommunityForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="communityName" class="form-label">Community name</label>
+                            <input type="text" class="form-control" id="communityName" name="name" required maxlength="80" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="communityDesc" class="form-label">Short description</label>
+                            <input type="text" class="form-control" id="communityDesc" name="shortDescription" maxlength="160" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Community Post Modal -->
+    <div class="modal fade" id="createCommunityPostModal" tabindex="-1" aria-labelledby="createCommunityPostLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createCommunityPostLabel">Create Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="createCommunityPostForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" name="title" placeholder="Post title..." maxlength="100" required>
+                        </div>
+                        <div>
+                            <textarea class="form-control" name="content" rows="5" maxlength="500" placeholder="What's on your mind?" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Post</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Community Post Modal -->
+    <div class="modal fade" id="editCommunityPostModal" tabindex="-1" aria-labelledby="editCommunityPostLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCommunityPostLabel">Edit Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editCommunityPostForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" name="title" placeholder="Post title..." maxlength="100" required>
+                        </div>
+                        <div>
+                            <textarea class="form-control" name="content" rows="5" maxlength="500" placeholder="Post content..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Community Modal -->
+    <div class="modal fade" id="editCommunityModal" tabindex="-1" aria-labelledby="editCommunityLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCommunityLabel">Edit Community</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editCommunityForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="editCommunityName" class="form-label">Community name</label>
+                            <input type="text" class="form-control" id="editCommunityName" name="name" required maxlength="80" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCommunityDesc" class="form-label">Short description</label>
+                            <input type="text" class="form-control" id="editCommunityDesc" name="description" maxlength="160" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Communities Create Modal -->
+    <div class="modal fade" id="mycommCreateCommunityModal" tabindex="-1" aria-labelledby="mycommCreateCommunityLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mycommCreateCommunityLabel">Create community</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="mycommCreateCommunityForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="mycommCommunityName" class="form-label">Community name</label>
+                            <input type="text" class="form-control" id="mycommCommunityName" name="name" required maxlength="80" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="mycommCommunityDesc" class="form-label">Short description</label>
+                            <input type="text" class="form-control" id="mycommCommunityDesc" name="shortDescription" maxlength="160" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
     <footer>
+    </footer>
 
-</footer>
+    <!-- REMOVE this line --<script src="./assets/js/ajax-calls.js"></script> -->
+    <script src="utils/constants.js"></script>
+    <script src="utils/rest-client.js"></script>
+    <script src="utils/utils.js"></script>
+    <script src="services/user-service.js"></script>
+    <script src="services/auth-service.js"></script>
+    <script src="services/post-service.js"></script> 
+    <script src="services/comment-service.js"></script>
+    <script src="services/like-service.js"></script>
+    <script src="services/community-service.js"></script>
+    <script src="services/community-post-service.js"></script>
+    <script src="services/community-like-service.js"></script>
+    <script src="services/community-comment-service.js"></script>
+    <script src="services/admin-service.js"></script>
+    <script src="assets/js/app.js"></script>
 
-<!-- REMOVE this line --<script src="./assets/js/ajax-calls.js"></script> -->
- <script src="services/user-service.js"></script>
-<script src="assets/js/app.js"></script>
+    <script>
+    // Handle create post form submission
+    $("#createPostForm").on("submit", function(e) {
+        e.preventDefault();
+        const title = $(this).find('input[name="title"]').val().trim();
+        const content = $(this).find('textarea[name="content"]').val().trim();
+        
+        if (title && content) {
+            PostService.createPost(title, content);
+        } else {
+            toastr.error("Please fill in all fields");
+        }
+    });
+
+    // Handle edit post form submission
+    $("#editPostForm").on("submit", function(e) {
+        e.preventDefault();
+        const postId = $("#editPostModal").data('post-id');
+        const title = $(this).find('input[name="title"]').val().trim();
+        const content = $(this).find('textarea[name="content"]').val().trim();
+        
+        if (title && content && postId) {
+            PostService.updatePost(postId, title, content);
+        } else {
+            toastr.error("Please fill in all fields");
+        }
+    });
+
+    // Handle create community form submission
+    $("#createCommunityForm").on("submit", function(e) {
+        e.preventDefault();
+        const name = $(this).find('input[name="name"]').val().trim();
+        const description = $(this).find('input[name="shortDescription"]').val().trim();
+        
+        if (name) {
+            CommunityService.createCommunity(name, description, function(response) {
+                $("#createCommunityModal").modal('hide');
+                $("#createCommunityForm")[0].reset();
+                
+                // Reload communities if on explore page
+                if (window.location.hash.includes('explore-communities')) {
+                    loadExploreCommunities();
+                }
+            });
+        } else {
+            toastr.error("Please enter a community name");
+        }
+    });
+
+    // Handle create community post form submission
+    $("#createCommunityPostForm").on("submit", function(e) {
+        e.preventDefault();
+        const title = $(this).find('input[name="title"]').val().trim();
+        const content = $(this).find('textarea[name="content"]').val().trim();
+        const communityId = sessionStorage.getItem('currentCommunityId');
+        
+        if (title && content && communityId) {
+            CommunityPostService.createCommunityPost(communityId, title, content, function(response) {
+                $("#createCommunityPostModal").modal('hide');
+                $("#createCommunityPostForm")[0].reset();
+                
+                // Reload community posts
+                if (typeof loadCommunityDetail === 'function') {
+                    loadCommunityDetail();
+                }
+            });
+        } else {
+            toastr.error("Please fill in all fields");
+        }
+    });
+
+    // Handle edit community post form submission
+    $("#editCommunityPostForm").on("submit", function(e) {
+        e.preventDefault();
+        const postId = $("#editCommunityPostModal").data('post-id');
+        const title = $(this).find('input[name="title"]').val().trim();
+        const content = $(this).find('textarea[name="content"]').val().trim();
+        
+        if (title && content && postId) {
+            CommunityPostService.updateCommunityPost(postId, title, content, function(response) {
+                $("#editCommunityPostModal").modal('hide');
+                
+                // Reload page
+                if (typeof loadCommunityDetail === 'function') {
+                    loadCommunityDetail();
+                } else if (typeof loadCommunityPostDetail === 'function') {
+                    loadCommunityPostDetail();
+                }
+            });
+        } else {
+            toastr.error("Please fill in all fields");
+        }
+    });
+
+    // Handle edit community form submission
+    $("#editCommunityForm").on("submit", function(e) {
+        e.preventDefault();
+        const communityId = $("#editCommunityModal").data('community-id');
+        const name = $(this).find('input[name="name"]').val().trim();
+        const description = $(this).find('input[name="description"]').val().trim();
+        
+        if (name && communityId) {
+            CommunityService.updateCommunity(communityId, name, description, function(response) {
+                $("#editCommunityModal").modal('hide');
+                
+                // Reload page
+                if (typeof loadMyCommunities === 'function') {
+                    loadMyCommunities();
+                } else if (typeof loadCommunityDetail === 'function') {
+                    loadCommunityDetail();
+                }
+            });
+        } else {
+            toastr.error("Please enter a community name");
+        }
+    });
+
+    // Handle my communities create form submission
+    $("#mycommCreateCommunityForm").on("submit", function(e) {
+        e.preventDefault();
+        const name = $(this).find('input[name="name"]').val().trim();
+        const description = $(this).find('input[name="shortDescription"]').val().trim();
+        
+        if (name) {
+            CommunityService.createCommunity(name, description, function(response) {
+                $("#mycommCreateCommunityModal").modal('hide');
+                $("#mycommCreateCommunityForm")[0].reset();
+                
+                // Reload my communities
+                if (typeof loadMyCommunities === 'function') {
+                    loadMyCommunities();
+                }
+            });
+        } else {
+            toastr.error("Please enter a community name");
+        }
+    });
+    </script>
 </body>
 
 </html>

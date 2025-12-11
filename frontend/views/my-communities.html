@@ -1,92 +1,145 @@
 <main class="mycomm-main">
+    <!-- Top bar: left create button, right search input -->
+    <div class="mycomm-topbar">
+        <div class="mycomm-topbar-left">
+            <button class="mycomm-create-btn" type="button" data-bs-toggle="modal" data-bs-target="#mycommCreateCommunityModal">Create</button>
+        </div>
+        <div class="mycomm-topbar-right">
+            <label for="mycomm-search" class="visually-hidden">Search communities</label>
+            <input id="mycomm-search" class="mycomm-search-input" type="search" placeholder="Search communities" />
+        </div>
+    </div>
 
-	<!-- Top bar: left create button, right search input -->
-	<div class="mycomm-topbar">
-		<div class="mycomm-topbar-left">
-			<button class="mycomm-create-btn" type="button" data-bs-toggle="modal" data-bs-target="#mycommCreateCommunityModal">Create</button>
-		</div>
-		<div class="mycomm-topbar-right">
-			<label for="mycomm-search" class="visually-hidden">Search communities</label>
-			<input id="mycomm-search" class="mycomm-search-input" type="search" placeholder="Search communities" />
-		</div>
-	</div>
-
-	<!-- Three consecutive community cards (renamed classes) -->
-
-				<section class="mycomm-community-card mycomm-tall-card">
-					<a class="mycomm-card-link" href="/Yapp/frontend/index.html#community">
-						<div class="mycomm-community-body">
-							<div class="mycomm-community-header">
-								<h2 class="mycomm-community-title">Gardening & Growers</h2>
-								<p class="mycomm-community-desc">Tips, photos and Q&amp;A for home gardeners and urban growers.</p>
-							</div>
-
-							<div class="mycomm-community-footer">
-								<div class="mycomm-members-box">Members: <span class="mycomm-member-count">12,345</span></div>
-								<button class="mycomm-subscribe-btn" type="button" onclick="event.preventDefault(); event.stopPropagation();">Settings</button>
-							</div>
-						</div>
-					</a>
-				</section>
-
-				<section class="mycomm-community-card mycomm-tall-card">
-					<a class="mycomm-card-link" href="/Yapp/frontend/index.html#community">
-						<div class="mycomm-community-body">
-							<div class="mycomm-community-header">
-								<h2 class="mycomm-community-title">Indie Game Developers</h2>
-								<p class="mycomm-community-desc">Share builds, post devlogs, and discuss game design challenges.</p>
-							</div>
-
-							<div class="mycomm-community-footer">
-								<div class="mycomm-members-box">Members: <span class="mycomm-member-count">8,921</span></div>
-								<button class="mycomm-subscribe-btn" type="button" onclick="event.preventDefault(); event.stopPropagation();">Settings</button>
-							</div>
-						</div>
-					</a>
-				</section>
-
-				<section class="mycomm-community-card mycomm-tall-card">
-					<a class="mycomm-card-link" href="/Yapp/frontend/index.html#community">
-						<div class="mycomm-community-body">
-							<div class="mycomm-community-header">
-								<h2 class="mycomm-community-title">Photography Walks</h2>
-								<p class="mycomm-community-desc">Organize local photowalks and critique each other's work kindly.</p>
-							</div>
-
-							<div class="mycomm-community-footer">
-								<div class="mycomm-members-box">Members: <span class="mycomm-member-count">3,402</span></div>
-								<button class="mycomm-subscribe-btn" type="button" onclick="event.preventDefault(); event.stopPropagation();">Settings</button>
-							</div>
-						</div>
-					</a>
-				</section>
-
+    <!-- Communities will be loaded here -->
+    <div style="text-align:center;padding:40px;">
+        <div class="spinner-border text-danger" role="status">
+            <span class="sr-only">Loading your communities...</span>
+        </div>
+    </div>
 </main>
 
-<!-- Create Community Modal (IDs renamed to avoid clashes) -->
-<div class="modal fade" id="mycommCreateCommunityModal" tabindex="-1" aria-labelledby="mycommCreateCommunityLabel" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="mycommCreateCommunityLabel">Create community</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<form id="mycommCreateCommunityForm">
-				<div class="modal-body">
-					<div class="mb-3">
-						<label for="mycommCommunityName" class="form-label">Community name</label>
-						<input type="text" class="form-control" id="mycommCommunityName" name="name" required maxlength="80" />
-					</div>
-					<div class="mb-3">
-						<label for="mycommCommunityDesc" class="form-label">Short description</label>
-						<input type="text" class="form-control" id="mycommCommunityDesc" name="shortDescription" maxlength="160" />
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-					<button type="submit" class="btn btn-primary">Create</button>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
+<script>
+function loadMyCommunities() {
+    const currentUser = Utils.parseJwt(localStorage.getItem("user_token"));
+    const userId = currentUser.user.UserID;
+    
+    CommunityService.loadUserCommunities(userId, function(communities) {
+        renderMyCommunities(communities, userId);
+    });
+}
+
+function renderMyCommunities(communities, currentUserId) {
+    const container = $(".mycomm-main");
+    
+    // Keep the topbar
+    const topbar = container.find('.mycomm-topbar').clone();
+    container.empty();
+    container.append(topbar);
+    
+    if (!communities || communities.length === 0) {
+        container.append('<p style="text-align:center;color:#999;padding:40px;">You haven\'t created any communities yet. Click "Create" to start!</p>');
+        return;
+    }
+    
+    communities.forEach(function(community) {
+        const cardHtml = createMyCommunityCard(community);
+        container.append(cardHtml);
+    });
+    
+    // Attach event handlers
+    attachMyCommunityHandlers();
+}
+
+function createMyCommunityCard(community) {
+    return `
+    <section class="mycomm-community-card mycomm-tall-card" data-community-id="${community.CommunityID}">
+        <div class="mycomm-card-link-wrapper" data-community-id="${community.CommunityID}" style="cursor:pointer;">
+            <div class="mycomm-community-body">
+                <div class="mycomm-community-header">
+                    <h2 class="mycomm-community-title">${PostService.escapeHtml(community.Name)}</h2>
+                    <p class="mycomm-community-desc">${PostService.escapeHtml(community.Description || 'No description')}</p>
+                </div>
+                <div class="mycomm-community-footer">
+                    <div class="mycomm-members-box">Members: <span class="mycomm-member-count" data-community-id="${community.CommunityID}">Loading...</span></div>
+                    <button class="mycomm-subscribe-btn" data-community-id="${community.CommunityID}" type="button" onclick="event.preventDefault(); event.stopPropagation();">Settings</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    `;
+}
+
+function attachMyCommunityHandlers() {
+    // Click community to view details
+    $(".mycomm-card-link-wrapper").off('click').on('click', function(e) {
+        const communityId = $(this).data('community-id');
+        sessionStorage.setItem('currentCommunityId', communityId);
+        window.location.hash = "#community";
+    });
+    
+    // Load member counts
+    $(".mycomm-member-count").each(function() {
+        const communityId = $(this).data('community-id');
+        const element = $(this);
+        CommunityService.getSubscriberCount(communityId, function(count) {
+            element.text(count || 0);
+        });
+    });
+    
+    // Settings button (edit/delete)
+    $(".mycomm-subscribe-btn").off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const communityId = $(this).data('community-id');
+        
+        // Show settings modal or edit modal
+        CommunityService.loadCommunity(communityId, function(community) {
+            $("#editCommunityModal input[name='name']").val(community.Name);
+            $("#editCommunityModal input[name='description']").val(community.Description);
+            $("#editCommunityModal").data('community-id', communityId);
+            $("#editCommunityModal").modal('show');
+        });
+    });
+    
+    // Search functionality
+    $("#mycomm-search").off('input').on('input', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        $(".mycomm-community-card").each(function() {
+            const title = $(this).find('.mycomm-community-title').text().toLowerCase();
+            const desc = $(this).find('.mycomm-community-desc').text().toLowerCase();
+            if (title.includes(searchTerm) || desc.includes(searchTerm)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+}
+
+// Load my communities on page load
+loadMyCommunities();
+</script>
+
+<!-- My Communities Create Modal -->
+<script>
+// Handle create community form submission for my-communities page
+$("#mycommCreateCommunityForm").on("submit", function(e) {
+    e.preventDefault();
+    const name = $(this).find('input[name="name"]').val().trim();
+    const description = $(this).find('input[name="shortDescription"]').val().trim();
+    
+    if (name) {
+        CommunityService.createCommunity(name, description, function(response) {
+            $("#mycommCreateCommunityModal").modal('hide');
+            $("#mycommCreateCommunityForm")[0].reset();
+            
+            // Reload my communities
+            if (typeof loadMyCommunities === 'function') {
+                loadMyCommunities();
+            }
+        });
+    } else {
+        toastr.error("Please enter a community name");
+    }
+});
+</script>

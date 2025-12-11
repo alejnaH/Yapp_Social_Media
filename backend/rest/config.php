@@ -1,4 +1,3 @@
-
 <?php
 
 // Set the reporting
