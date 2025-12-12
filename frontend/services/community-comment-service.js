@@ -88,7 +88,6 @@ var CommunityCommentService = {
             <div class="communitypost-comment-content">
                 <div class="communitypost-comment-header">
                     <span class="communitypost-comment-username">@${username}</span>
-                    <span class="communitypost-comment-time">commented at ${commentTime}</span>
                     ${isOwner ? `
                     <div style="margin-left:auto;">
                         <button class="btn btn-sm btn-link edit-community-comment-btn" data-comment-id="${comment.CommunityCommentID}" style="font-size:0.75rem;padding:0 5px;">Edit</button>

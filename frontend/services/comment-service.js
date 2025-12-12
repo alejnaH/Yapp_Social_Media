@@ -89,7 +89,6 @@ var CommentService = {
             <div class="postpage-comment-content">
                 <div class="postpage-comment-header">
                     <span class="postpage-comment-username">@${username}</span>
-                    <span class="postpage-comment-time">commented at ${commentTime}</span>
                     ${isOwner ? `
                     <div style="margin-left:auto;">
                         <button class="btn btn-sm btn-link edit-comment-btn" data-comment-id="${comment.CommentID}" style="font-size:0.75rem;padding:0 5px;">Edit</button>
