@@ -101,8 +101,12 @@ var PostService = {
     
     // Create HTML for a single post card
     createPostCard: function(post, currentUserId) {
+        const currentUser = Utils.parseJwt(localStorage.getItem("user_token"));
+        const isAdmin = currentUser && currentUser.user.Role === 'admin';
+
         const postTime = PostService.formatTime(post.TimeOfPost || post.CreatedAt);
         const isOwner = currentUserId == post.UserID;
+        const canModify = isOwner || isAdmin; // Owner OR admin can modify
         const likeCount = post.like_count || 0;
         const commentCount = post.comment_count || 0;
         const username = post.Username || 'Unknown';
@@ -137,9 +141,9 @@ var PostService = {
                     </svg>
                     <span>${commentCount}</span>
                 </button>
-                ${isOwner ? `
+                ${canModify ? `
                 <div style="margin-left:auto;display:flex;gap:8px;">
-                    <button class="btn btn-sm btn-outline-secondary edit-post-btn" data-post-id="${post.PostID}" style="font-size:0.8rem;">Edit</button>
+                    ${isOwner ? `<button class="btn btn-sm btn-outline-secondary edit-post-btn" data-post-id="${post.PostID}" style="font-size:0.8rem;">Edit</button>` : ''}
                     <button class="btn btn-sm btn-outline-danger delete-post-btn" data-post-id="${post.PostID}" style="font-size:0.8rem;">Delete</button>
                 </div>
                 ` : ''}
@@ -147,6 +151,7 @@ var PostService = {
         </div>
         `;
     },
+
     // Attach event handlers to posts
     attachPostEventHandlers: function(currentUserId) {
         // Click post to view details - UPDATED SELECTOR

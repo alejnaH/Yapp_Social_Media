@@ -91,11 +91,15 @@ var CommunityPostService = {
     
     // Create HTML for community post card
     createCommunityPostCard: function(post, currentUserId) {
+        const currentUser = Utils.parseJwt(localStorage.getItem("user_token"));
+        const isAdmin = currentUser && currentUser.user.Role === 'admin';
+        
         const postTime = PostService.formatTime(post.TimeOfPost || post.CreatedAt);
         const isOwner = currentUserId == post.UserID;
+        const canModify = isOwner || isAdmin; // Owner OR admin
         const username = post.Username || 'Unknown';
-        const communityName = post.CommunityName || ''; 
-
+        const communityName = post.CommunityName || '';
+    
         return `
         <div class="my-custom-card" data-community-post-id="${post.CommunityPostID}">
             <div class="community-post-card-link-wrapper" data-community-post-id="${post.CommunityPostID}" style="cursor:pointer;">
@@ -104,8 +108,8 @@ var CommunityPostService = {
                         <img src="assets/images/profile-icon.png" alt="Avatar" class="avatar-img">
                         <div>
                             <span class="card-author">@${username}</span>
-                            <small class="post-time" style="color:#9b9b9b;font-size:0.9rem;margin-left:8px;">Posted at ${postTime}</small>
                             ${communityName ? `<span style="margin-left:8px;background:#dc3545;color:white;padding:2px 8px;border-radius:12px;font-size:0.75rem;font-weight:600;">c/${PostService.escapeHtml(communityName)}</span>` : ''}
+                            <small class="post-time" style="color:#9b9b9b;font-size:0.9rem;margin-left:8px;">Posted at ${postTime}</small>
                         </div>
                     </div>
                     <h5 class="card-title">${PostService.escapeHtml(post.Title)}</h5>
@@ -126,9 +130,9 @@ var CommunityPostService = {
                     </svg>
                     <span class="community-comment-count">0</span>
                 </button>
-                ${isOwner ? `
+                ${canModify ? `
                 <div style="margin-left:auto;display:flex;gap:8px;">
-                    <button class="btn btn-sm btn-outline-secondary edit-community-post-btn" data-community-post-id="${post.CommunityPostID}" style="font-size:0.8rem;">Edit</button>
+                    ${isOwner ? `<button class="btn btn-sm btn-outline-secondary edit-community-post-btn" data-community-post-id="${post.CommunityPostID}" style="font-size:0.8rem;">Edit</button>` : ''}
                     <button class="btn btn-sm btn-outline-danger delete-community-post-btn" data-community-post-id="${post.CommunityPostID}" style="font-size:0.8rem;">Delete</button>
                 </div>
                 ` : ''}

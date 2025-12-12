@@ -40,6 +40,8 @@ function loadCommunityPostDetail() {
         // Load comments
         CommunityCommentService.loadComments(postId, function(comments) {
             CommunityCommentService.renderComments(comments, currentUserId);
+            // Update comment count after loading comments
+            $(".communitypost-action .comment-count").text(comments ? comments.length : 0);
         });
         
         // Check if user liked this post

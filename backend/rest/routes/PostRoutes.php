@@ -213,6 +213,7 @@ Flight::route('PUT /posts/@id', function($id) {
  *     path="/posts/{id}",
  *     tags={"posts"},
  *     summary="Delete a post by ID",
+ *     description="Users can delete their own posts. Admins can delete any post.",
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -223,9 +224,27 @@ Flight::route('PUT /posts/@id', function($id) {
  *     @OA\Response(
  *         response=200,
  *         description="Post deleted"
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Forbidden - can only delete your own posts unless you're admin"
  *     )
  * )
  */
 Flight::route('DELETE /posts/@id', function($id) {
+    $currentUser = Flight::get('user');
+    
+    // Get the post to check ownership
+    $post = Flight::postService()->get_one_post((int)$id);
+    
+    if (!$post) {
+        Flight::halt(404, "Post not found");
+    }
+    
+    // Allow deletion if user owns the post OR is admin
+    if ($currentUser->UserID != $post['UserID'] && $currentUser->Role !== 'admin') {
+        Flight::halt(403, "You can only delete your own posts");
+    }
+    
     Flight::json(Flight::postService()->delete_post((int)$id));
 });

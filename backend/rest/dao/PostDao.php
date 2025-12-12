@@ -66,10 +66,12 @@ class PostDao extends BaseDao {
                         u.Username,
                         u.FullName AS UserFullName,
                         COUNT(DISTINCT l.UserID) AS like_count,
+                        COUNT(DISTINCT c.CommentID) AS comment_count,
                         MAX(CASE WHEN l.UserID = :currentUserId THEN 1 ELSE 0 END) AS user_liked
                     FROM `Post` p
                     JOIN `User` u ON p.UserID = u.UserID
                     LEFT JOIN `Like` l ON l.PostID = p.PostID
+                    LEFT JOIN `Comment` c ON c.PostID = p.PostID
                     GROUP BY p.PostID
                     ORDER BY p.TimeOfPost DESC, p.PostID DESC";
             $stmt = $this->connection->prepare($sql);
@@ -80,10 +82,12 @@ class PostDao extends BaseDao {
                         u.Username,
                         u.FullName AS UserFullName,
                         COUNT(DISTINCT l.UserID) AS like_count,
+                        COUNT(DISTINCT c.CommentID) AS comment_count,
                         0 AS user_liked
                     FROM `Post` p
                     JOIN `User` u ON p.UserID = u.UserID
                     LEFT JOIN `Like` l ON l.PostID = p.PostID
+                    LEFT JOIN `Comment` c ON c.PostID = p.PostID
                     GROUP BY p.PostID
                     ORDER BY p.TimeOfPost DESC, p.PostID DESC";
             $stmt = $this->connection->prepare($sql);
