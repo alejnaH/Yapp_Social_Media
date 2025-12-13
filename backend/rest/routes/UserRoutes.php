@@ -3,7 +3,8 @@
  * Removes sensitive fields from user objects before returning them in API responses.
  * This prevents exposure of confidential data such as password hashes.
  * Used for all user-related GET endpoints.
- */function sanitize_user($u) {
+ */
+function sanitize_user($u) {
     if (!$u) return $u;
 
     // remove sensitive fields
@@ -30,6 +31,7 @@ function sanitize_users($users) {
  *     path="/users",
  *     tags={"users"},
  *     summary="Get all users",
+ *     security={{"ApiKey":{}}},
  *     description="Returns a list of all users in the system.",
  *     @OA\Response(
  *         response=200,
@@ -49,6 +51,7 @@ Flight::route('GET /users', function() {
  *     path="/users/{id}",
  *     tags={"users"},
  *     summary="Get user by ID",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -56,10 +59,7 @@ Flight::route('GET /users', function() {
  *         description="User ID",
  *         @OA\Schema(type="integer", example=5)
  *     ),
- *     @OA\Response(
- *         response=200,
- *         description="User object or null if not found"
- *     )
+ *     @OA\Response(response=200, description="User object or null if not found")
  * )
  */
 Flight::route('GET /users/@id', function($id) {
@@ -74,6 +74,7 @@ Flight::route('GET /users/@id', function($id) {
  *     path="/users/email/{email}",
  *     tags={"users"},
  *     summary="Get user by email",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="email",
  *         in="path",
@@ -98,6 +99,7 @@ Flight::route('GET /users/email/@email', function($email) {
  *     path="/users/username/{username}",
  *     tags={"users"},
  *     summary="Get user by username",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="username",
  *         in="path",
@@ -128,6 +130,7 @@ Flight::route('GET /users/username/@username', function($username) {
  *     path="/users/{id}",
  *     tags={"users"},
  *     summary="Update a user",
+ *     security={{"ApiKey":{}}},
  *     description="Updates user fields such as username, email, or full name.",
  *     @OA\Parameter(
  *         name="id",
@@ -174,6 +177,7 @@ Flight::route('PUT /users/@id', function($id) {
  *     path="/users/{id}",
  *     tags={"users"},
  *     summary="Delete a user",
+ *     security={{"ApiKey":{}}},
  *     description="Deletes a user by ID.",
  *     @OA\Parameter(
  *         name="id",
