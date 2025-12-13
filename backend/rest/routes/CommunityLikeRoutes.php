@@ -5,6 +5,7 @@
  *     path="/community-likes",
  *     tags={"community-likes"},
  *     summary="Add a like to a community post (idempotent)",
+ *     security={{"ApiKey":{}}},
  *     description="Adds a like from a user to a community post. If the like already exists, nothing changes.",
  *     @OA\RequestBody(
  *         required=true,
@@ -31,7 +32,15 @@
  * )
  */
 Flight::route('POST /community-likes', function() {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
     $data = Flight::request()->data->getData();
+    $currentUser = Flight::get('user');
+
+    if ($currentUser->Role !== 'admin' && (int)$currentUser->UserID !== (int)$data['user_id']) {
+        Flight::halt(403, "You can only like as yourself");
+    }
+
     Flight::json(
         Flight::communityLikeService()->add_like(
             (int)$data['user_id'],
@@ -40,11 +49,13 @@ Flight::route('POST /community-likes', function() {
     );
 });
 
+
 /**
  * @OA\Delete(
  *     path="/community-likes",
  *     tags={"community-likes"},
  *     summary="Remove a like from a community post",
+ *     security={{"ApiKey":{}}},
  *     description="Removes a like from a user on a community post if it exists.",
  *     @OA\RequestBody(
  *         required=true,
@@ -71,7 +82,15 @@ Flight::route('POST /community-likes', function() {
  * )
  */
 Flight::route('DELETE /community-likes', function() {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
     $data = Flight::request()->data->getData();
+    $currentUser = Flight::get('user');
+
+    if ($currentUser->Role !== 'admin' && (int)$currentUser->UserID !== (int)$data['user_id']) {
+        Flight::halt(403, "You can only unlike as yourself");
+    }
+
     Flight::json(
         Flight::communityLikeService()->remove_like(
             (int)$data['user_id'],
@@ -80,11 +99,13 @@ Flight::route('DELETE /community-likes', function() {
     );
 });
 
+
 /**
  * @OA\Get(
  *     path="/community-likes/check/{user_id}/{community_post_id}",
  *     tags={"community-likes"},
  *     summary="Check if a user liked a community post",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="user_id",
  *         in="path",
@@ -106,6 +127,13 @@ Flight::route('DELETE /community-likes', function() {
  * )
  */
 Flight::route('GET /community-likes/check/@user_id/@community_post_id', function($user_id, $community_post_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
+    if ($currentUser->Role !== 'admin' && (int)$currentUser->UserID !== (int)$user_id) {
+        Flight::halt(403, "You can only check your own likes");
+    }
+
     Flight::json(
         Flight::communityLikeService()->has_user_liked_post(
             (int)$user_id,
@@ -114,11 +142,13 @@ Flight::route('GET /community-likes/check/@user_id/@community_post_id', function
     );
 });
 
+
 /**
  * @OA\Get(
  *     path="/community-likes/post/{community_post_id}",
  *     tags={"community-likes"},
  *     summary="List likes for a given community post",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="community_post_id",
  *         in="path",
@@ -133,6 +163,7 @@ Flight::route('GET /community-likes/check/@user_id/@community_post_id', function
  * )
  */
 Flight::route('GET /community-likes/post/@community_post_id', function($community_post_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::communityLikeService()->get_by_community_post_id((int)$community_post_id)
     );
@@ -143,6 +174,7 @@ Flight::route('GET /community-likes/post/@community_post_id', function($communit
  *     path="/community-likes/user/{user_id}",
  *     tags={"community-likes"},
  *     summary="List likes made by a specific user",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="user_id",
  *         in="path",
@@ -157,16 +189,25 @@ Flight::route('GET /community-likes/post/@community_post_id', function($communit
  * )
  */
 Flight::route('GET /community-likes/user/@user_id', function($user_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
+    if ($currentUser->Role !== 'admin' && (int)$currentUser->UserID !== (int)$user_id) {
+        Flight::halt(403, "You can only view your own likes");
+    }
+
     Flight::json(
         Flight::communityLikeService()->get_by_user_id((int)$user_id)
     );
 });
+
 
 /**
  * @OA\Get(
  *     path="/community-likes/count/{community_post_id}",
  *     tags={"community-likes"},
  *     summary="Get like count for a community post",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="community_post_id",
  *         in="path",
@@ -181,6 +222,7 @@ Flight::route('GET /community-likes/user/@user_id', function($user_id) {
  * )
  */
 Flight::route('GET /community-likes/count/@community_post_id', function($community_post_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::communityLikeService()->get_like_count((int)$community_post_id)
     );
@@ -191,6 +233,7 @@ Flight::route('GET /community-likes/count/@community_post_id', function($communi
  *     path="/community-likes/post/{community_post_id}/with-user",
  *     tags={"community-likes"},
  *     summary="List likes for a community post including user info",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="community_post_id",
  *         in="path",
@@ -205,6 +248,7 @@ Flight::route('GET /community-likes/count/@community_post_id', function($communi
  * )
  */
 Flight::route('GET /community-likes/post/@community_post_id/with-user', function($community_post_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::communityLikeService()->get_likes_with_user_info((int)$community_post_id)
     );
