@@ -1,4 +1,29 @@
 <?php
+/** I added this function because it:
+ * Removes sensitive fields from user objects before returning them in API responses.
+ * This prevents exposure of confidential data such as password hashes.
+ * Used for all user-related GET endpoints.
+ */function sanitize_user($u) {
+    if (!$u) return $u;
+
+    // remove sensitive fields
+    unset($u['Password']);
+
+    return $u;
+}
+
+function sanitize_users($users) {
+    if (!is_array($users)) return $users;
+
+    // if it's a list of users
+    $is_list = array_keys($users) === range(0, count($users) - 1);
+    if ($is_list) {
+        return array_map('sanitize_user', $users);
+    }
+
+    // single user associative array
+    return sanitize_user($users);
+}
 
 /**
  * @OA\Get(
@@ -14,7 +39,9 @@
  */
 Flight::route('GET /users', function() {
     Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
-    Flight::json(Flight::userService()->get_all());
+    $users = Flight::userService()->get_all();
+    Flight::json(sanitize_users($users));
+
 });
 
 /**
@@ -37,7 +64,9 @@ Flight::route('GET /users', function() {
  */
 Flight::route('GET /users/@id', function($id) {
     Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
-    Flight::json(Flight::userService()->get_user_by_id($id));
+    $user = Flight::userService()->get_user_by_id((int)$id);
+    Flight::json(sanitize_user($user));
+
 });
 
 /**
@@ -60,7 +89,9 @@ Flight::route('GET /users/@id', function($id) {
  */
 Flight::route('GET /users/email/@email', function($email) {
     Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
-    Flight::json(Flight::userService()->get_by_email($email));
+    $user = Flight::userService()->get_by_email($email);
+    Flight::json(sanitize_user($user));
+
 });
 /**
  * @OA\Get(
@@ -82,7 +113,9 @@ Flight::route('GET /users/email/@email', function($email) {
  */
 Flight::route('GET /users/username/@username', function($username) {
     Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
-    Flight::json(Flight::userService()->get_by_username($username));
+    $user = Flight::userService()->get_by_username($username);
+    Flight::json(sanitize_user($user));
+
 });
 
 //Flight::route('POST /users', function() {
