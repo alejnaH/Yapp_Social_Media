@@ -5,6 +5,7 @@
  *     path="/community-comments/{id}",
  *     tags={"community-comments"},
  *     summary="Get a community comment by ID",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -19,6 +20,7 @@
  * )
  */
 Flight::route('GET /community-comments/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::communityCommentService()->get_comment_by_id((int)$id));
 });
 
@@ -27,6 +29,7 @@ Flight::route('GET /community-comments/@id', function($id) {
  *     path="/community-comments/post/{community_post_id}",
  *     tags={"community-comments"},
  *     summary="Get community comments for a specific community post",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="community_post_id",
  *         in="path",
@@ -41,6 +44,7 @@ Flight::route('GET /community-comments/@id', function($id) {
  * )
  */
 Flight::route('GET /community-comments/post/@community_post_id', function($community_post_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::communityCommentService()->get_by_community_post_id((int)$community_post_id));
 });
 
@@ -49,6 +53,7 @@ Flight::route('GET /community-comments/post/@community_post_id', function($commu
  *     path="/community-comments/user/{user_id}",
  *     tags={"community-comments"},
  *     summary="Get community comments made by a specific user",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="user_id",
  *         in="path",
@@ -63,14 +68,24 @@ Flight::route('GET /community-comments/post/@community_post_id', function($commu
  * )
  */
 Flight::route('GET /community-comments/user/@user_id', function($user_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
+
+    if ($currentUser->Role !== 'admin' && (int)$currentUser->UserID !== (int)$user_id) {
+        Flight::halt(403, "You can only view your own comments");
+    }
+
     Flight::json(Flight::communityCommentService()->get_by_user_id((int)$user_id));
 });
+
 
 /**
  * @OA\Get(
  *     path="/community-comments/post/{community_post_id}/with-user",
  *     tags={"community-comments"},
  *     summary="Get community comments for a post including user info",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="community_post_id",
  *         in="path",
@@ -85,6 +100,7 @@ Flight::route('GET /community-comments/user/@user_id', function($user_id) {
  * )
  */
 Flight::route('GET /community-comments/post/@community_post_id/with-user', function($community_post_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::communityCommentService()->get_comments_with_user_info((int)$community_post_id));
 });
 
@@ -93,21 +109,16 @@ Flight::route('GET /community-comments/post/@community_post_id/with-user', funct
  *     path="/community-comments",
  *     tags={"community-comments"},
  *     summary="Create a new community comment",
+ *     security={{"ApiKey":{}}},
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
- *             required={"CommunityPostID", "UserID", "Content"},
+ *             required={"CommunityPostID", "Content"},
  *             @OA\Property(
  *                 property="CommunityPostID",
  *                 type="integer",
  *                 example=5,
  *                 description="ID of the community post this comment belongs to"
- *             ),
- *             @OA\Property(
- *                 property="UserID",
- *                 type="integer",
- *                 example=3,
- *                 description="ID of the user who created the community comment"
  *             ),
  *             @OA\Property(
  *                 property="Content",
@@ -124,15 +135,24 @@ Flight::route('GET /community-comments/post/@community_post_id/with-user', funct
  * )
  */
 Flight::route('POST /community-comments', function() {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
     $data = Flight::request()->data->getData();
+
+    unset($data['UserID']);
+    $data['UserID'] = (int)$currentUser->UserID;
+
     Flight::json(Flight::communityCommentService()->create_comment($data));
 });
+
 
 /**
  * @OA\Put(
  *     path="/community-comments/{id}",
  *     tags={"community-comments"},
  *     summary="Update an existing community comment",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -158,15 +178,29 @@ Flight::route('POST /community-comments', function() {
  * )
  */
 Flight::route('PUT /community-comments/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
+    $comment = Flight::communityCommentService()->get_comment_by_id((int)$id);
+    if (!$comment) Flight::halt(404, "Comment not found");
+
+    if ($currentUser->UserID != $comment['UserID'] && $currentUser->Role !== 'admin') {
+        Flight::halt(403, "You can only edit your own comments");
+    }
+
     $data = Flight::request()->data->getData();
+    unset($data['UserID']); // extra safety
+
     Flight::json(Flight::communityCommentService()->update_comment((int)$id, $data));
 });
+
 
 /**
  * @OA\Delete(
  *     path="/community-comments/{id}",
  *     tags={"community-comments"},
  *     summary="Delete a community comment by ID",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -181,5 +215,15 @@ Flight::route('PUT /community-comments/@id', function($id) {
  * )
  */
 Flight::route('DELETE /community-comments/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
+    $comment = Flight::communityCommentService()->get_comment_by_id((int)$id);
+    if (!$comment) Flight::halt(404, "Comment not found");
+
+    if ($currentUser->UserID != $comment['UserID'] && $currentUser->Role !== 'admin') {
+        Flight::halt(403, "You can only delete your own comments");
+    }
+
     Flight::json(Flight::communityCommentService()->delete_comment((int)$id));
 });
