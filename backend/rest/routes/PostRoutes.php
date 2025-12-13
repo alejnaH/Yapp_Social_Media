@@ -5,6 +5,7 @@
  *     path="/posts",
  *     tags={"posts"},
  *     summary="Get all posts (newest first)",
+ *     security={{"ApiKey":{}}},
  *     @OA\Response(
  *         response=200,
  *         description="Array of all posts ordered by TimeOfPost (newest first)"
@@ -12,6 +13,7 @@
  * )
  */
 Flight::route('GET /posts', function() {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::postService()->get_all_posts());
 });
 
@@ -20,6 +22,7 @@ Flight::route('GET /posts', function() {
  *     path="/posts/{id}",
  *     tags={"posts"},
  *     summary="Get a single post by ID",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -34,6 +37,7 @@ Flight::route('GET /posts', function() {
  * )
  */
 Flight::route('GET /posts/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::postService()->get_one_post((int)$id));
 });
 
@@ -42,6 +46,7 @@ Flight::route('GET /posts/@id', function($id) {
  *     path="/posts/user/{user_id}",
  *     tags={"posts"},
  *     summary="Get posts created by a specific user",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="user_id",
  *         in="path",
@@ -56,6 +61,7 @@ Flight::route('GET /posts/@id', function($id) {
  * )
  */
 Flight::route('GET /posts/user/@user_id', function($user_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::postService()->get_by_user_id((int)$user_id));
 });
 
@@ -64,6 +70,7 @@ Flight::route('GET /posts/user/@user_id', function($user_id) {
  *     path="/posts/community/{community_id}",
  *     tags={"posts"},
  *     summary="Get community posts for a given community ID",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="community_id",
  *         in="path",
@@ -78,6 +85,7 @@ Flight::route('GET /posts/user/@user_id', function($user_id) {
  * )
  */
 Flight::route('GET /posts/community/@community_id', function($community_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::postService()->get_posts_by_community((int)$community_id));
 });
 
@@ -86,14 +94,9 @@ Flight::route('GET /posts/community/@community_id', function($community_id) {
  *     path="/posts-with-user-info",
  *     tags={"posts"},
  *     summary="Get posts with user info and like counts",
+ *     security={{"ApiKey":{}}},
  *     description="Returns posts joined with user data and like counts. Optionally mark whether the current user liked each post.",
- *     @OA\Parameter(
- *         name="current_user_id",
- *         in="query",
- *         required=false,
- *         description="If provided, marks posts where this user has liked them",
- *         @OA\Schema(type="integer", example=3)
- *     ),
+ *
  *     @OA\Response(
  *         response=200,
  *         description="Array of posts with username, full name, like_count, and user_liked (0/1)"
@@ -101,7 +104,9 @@ Flight::route('GET /posts/community/@community_id', function($community_id) {
  * )
  */
 Flight::route('GET /posts-with-user-info', function() {
-    $current_user_id = Flight::request()->query['current_user_id'] ?? null;
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+    $currentUser = Flight::get('user');
+    $current_user_id = (int)$currentUser->UserID;
     Flight::json(Flight::postService()->get_posts_with_user_info($current_user_id));
 });
 
@@ -110,6 +115,7 @@ Flight::route('GET /posts-with-user-info', function() {
  *     path="/posts/{id}/details",
  *     tags={"posts"},
  *     summary="Get a single post with full details",
+ *     security={{"ApiKey":{}}},
  *     description="Returns a post with joined user info plus aggregated comment and like counts.",
  *     @OA\Parameter(
  *         name="id",
@@ -125,6 +131,7 @@ Flight::route('GET /posts-with-user-info', function() {
  * )
  */
 Flight::route('GET /posts/@id/details', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::postService()->get_post_with_details((int)$id));
 });
 
@@ -133,16 +140,11 @@ Flight::route('GET /posts/@id/details', function($id) {
  *     path="/posts",
  *     tags={"posts"},
  *     summary="Create a new post",
+ *     security={{"ApiKey":{}}},
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
- *             required={"UserID", "Title", "Content"},
- *             @OA\Property(
- *                 property="UserID",
- *                 type="integer",
- *                 example=3,
- *                 description="ID of the user who creates the post"
- *             ),
+ *             required={"Title", "Content"},
  *             @OA\Property(
  *                 property="Title",
  *                 type="string",
@@ -164,15 +166,25 @@ Flight::route('GET /posts/@id/details', function($id) {
  * )
  */
 Flight::route('POST /posts', function() {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
     $data = Flight::request()->data->getData();
+
+    // SECURITY: do not trust UserID from client
+    unset($data['UserID']);
+    $data['UserID'] = (int)$currentUser->UserID;
+
     Flight::json(Flight::postService()->create_post($data));
 });
+
 
 /**
  * @OA\Put(
  *     path="/posts/{id}",
  *     tags={"posts"},
  *     summary="Update an existing post",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -204,7 +216,19 @@ Flight::route('POST /posts', function() {
  * )
  */
 Flight::route('PUT /posts/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
+    $post = Flight::postService()->get_one_post((int)$id);
+    if (!$post) Flight::halt(404, "Post not found");
+
+    if ($currentUser->UserID != $post['UserID'] && $currentUser->Role !== 'admin') {
+        Flight::halt(403, "You can only edit your own posts");
+    }
+
     $data = Flight::request()->data->getData();
+    unset($data['UserID']); // extra safety
+
     Flight::json(Flight::postService()->edit_post((int)$id, $data));
 });
 
@@ -213,6 +237,7 @@ Flight::route('PUT /posts/@id', function($id) {
  *     path="/posts/{id}",
  *     tags={"posts"},
  *     summary="Delete a post by ID",
+ *     security={{"ApiKey":{}}},
  *     description="Users can delete their own posts. Admins can delete any post.",
  *     @OA\Parameter(
  *         name="id",
@@ -232,6 +257,7 @@ Flight::route('PUT /posts/@id', function($id) {
  * )
  */
 Flight::route('DELETE /posts/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     $currentUser = Flight::get('user');
     
     // Get the post to check ownership
