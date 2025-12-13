@@ -63,11 +63,19 @@ Flight::route('GET /users', function() {
  * )
  */
 Flight::route('GET /users/@id', function($id) {
-    Flight::auth_middleware()->authorizeRole(Roles::ADMIN);
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user'); // from JWT
+
+    // if not admin, allow only own profile
+    if ($currentUser->Role !== 'admin' && (int)$currentUser->UserID !== (int)$id) {
+        Flight::halt(403, "You can only view your own profile.");
+    }
+
     $user = Flight::userService()->get_user_by_id((int)$id);
     Flight::json(sanitize_user($user));
-
 });
+
 
 /**
  * @OA\Get(
