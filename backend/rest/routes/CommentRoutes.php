@@ -5,6 +5,7 @@
  *     path="/comments/{id}",
  *     tags={"comments"},
  *     summary="Get a comment by ID",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -19,6 +20,7 @@
  * )
  */
 Flight::route('GET /comments/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::commentService()->get_comment_by_id((int)$id));
 });
 
@@ -27,6 +29,7 @@ Flight::route('GET /comments/@id', function($id) {
  *     path="/comments/post/{post_id}",
  *     tags={"comments"},
  *     summary="Get comments for a specific post",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="post_id",
  *         in="path",
@@ -41,6 +44,7 @@ Flight::route('GET /comments/@id', function($id) {
  * )
  */
 Flight::route('GET /comments/post/@post_id', function($post_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::commentService()->get_by_post_id((int)$post_id));
 });
 
@@ -49,6 +53,7 @@ Flight::route('GET /comments/post/@post_id', function($post_id) {
  *     path="/comments/user/{user_id}",
  *     tags={"comments"},
  *     summary="Get comments made by a specific user",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="user_id",
  *         in="path",
@@ -63,6 +68,7 @@ Flight::route('GET /comments/post/@post_id', function($post_id) {
  * )
  */
 Flight::route('GET /comments/user/@user_id', function($user_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::commentService()->get_by_user_id((int)$user_id));
 });
 
@@ -71,6 +77,7 @@ Flight::route('GET /comments/user/@user_id', function($user_id) {
  *     path="/comments/post/{post_id}/with-user",
  *     tags={"comments"},
  *     summary="Get comments for a post including user info",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="post_id",
  *         in="path",
@@ -85,6 +92,7 @@ Flight::route('GET /comments/user/@user_id', function($user_id) {
  * )
  */
 Flight::route('GET /comments/post/@post_id/with-user', function($post_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(Flight::commentService()->get_comments_with_user_info((int)$post_id));
 });
 
@@ -93,46 +101,38 @@ Flight::route('GET /comments/post/@post_id/with-user', function($post_id) {
  *     path="/comments",
  *     tags={"comments"},
  *     summary="Create a new comment",
+ *     security={{"ApiKey":{}}},
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
- *             required={"PostID", "UserID", "Content"},
- *             @OA\Property(
- *                 property="PostID",
- *                 type="integer",
- *                 example=10,
- *                 description="ID of the post this comment belongs to"
- *             ),
- *             @OA\Property(
- *                 property="UserID",
- *                 type="integer",
- *                 example=3,
- *                 description="ID of the user who created the comment"
- *             ),
- *             @OA\Property(
- *                 property="Content",
- *                 type="string",
- *                 example="This is a great post!",
- *                 description="Text content of the comment"
- *             )
+ *             required={"PostID", "Content"},
+ *             @OA\Property(property="PostID", type="integer", example=10),
+ *             @OA\Property(property="Content", type="string", example="Nice post!")
  *         )
  *     ),
- *     @OA\Response(
- *         response=200,
- *         description="New comment created"
- *     )
+ *     @OA\Response(response=200, description="Comment created")
  * )
  */
 Flight::route('POST /comments', function() {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
     $data = Flight::request()->data->getData();
+
+    // 🔥 SECURITY FIX
+    unset($data['UserID']);
+    $data['UserID'] = (int)$currentUser->UserID;
+
     Flight::json(Flight::commentService()->create_comment($data));
 });
+
 
 /**
  * @OA\Put(
  *     path="/comments/{id}",
  *     tags={"comments"},
  *     summary="Update an existing comment",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -158,15 +158,30 @@ Flight::route('POST /comments', function() {
  * )
  */
 Flight::route('PUT /comments/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
+    $comment = Flight::commentService()->get_comment_by_id((int)$id);
+
+    if (!$comment) Flight::halt(404, "Comment not found");
+
+    if ($currentUser->UserID != $comment['UserID'] && $currentUser->Role !== 'admin') {
+        Flight::halt(403, "You can only edit your own comments");
+    }
+
     $data = Flight::request()->data->getData();
+    unset($data['UserID']);
+
     Flight::json(Flight::commentService()->update_comment((int)$id, $data));
 });
+
 
 /**
  * @OA\Delete(
  *     path="/comments/{id}",
  *     tags={"comments"},
  *     summary="Delete a comment by ID",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -181,5 +196,17 @@ Flight::route('PUT /comments/@id', function($id) {
  * )
  */
 Flight::route('DELETE /comments/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
+    $comment = Flight::commentService()->get_comment_by_id((int)$id);
+
+    if (!$comment) Flight::halt(404, "Comment not found");
+
+    if ($currentUser->UserID != $comment['UserID'] && $currentUser->Role !== 'admin') {
+        Flight::halt(403, "You can only delete your own comments");
+    }
+
     Flight::json(Flight::commentService()->delete_comment((int)$id));
 });
+
