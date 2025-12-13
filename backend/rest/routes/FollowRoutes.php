@@ -5,6 +5,7 @@
  *     path="/follow",
  *     tags={"follow"},
  *     summary="Follow a user",
+ *     security={{"ApiKey":{}}},
  *     description="Creates a follow relationship. Operation is idempotent: returns 1 if a new follow was created, 0 if it already existed.",
  *     @OA\RequestBody(
  *         required=true,
@@ -14,7 +15,7 @@
  *                 property="follower_id",
  *                 type="integer",
  *                 example=3,
- *                 description="ID of the user who is following"
+ *                 description="For USER role, must match authenticated user ID. ADMIN may specify any follower."
  *             ),
  *             @OA\Property(
  *                 property="followed_id",
@@ -31,20 +32,34 @@
  * )
  */
 Flight::route('POST /follow', function() {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
     $data = Flight::request()->data->getData();
+    $currentUser = Flight::get('user');
+
+    if ($currentUser->Role !== 'admin' && (int)$data['follower_id'] !== (int)$currentUser->UserID) {
+        Flight::json(["message" => "You can only follow as yourself"], 403);
+        return;
+    }
+
+    // optional sanity: prevent following yourself
+    if ((int)$data['follower_id'] === (int)$data['followed_id']) {
+        Flight::json(["message" => "You cannot follow yourself"], 400);
+        return;
+    }
+
     Flight::json(
-        Flight::followService()->follow_user(
-            (int)$data['follower_id'],
-            (int)$data['followed_id']
-        )
+        Flight::followService()->follow_user((int)$data['follower_id'], (int)$data['followed_id'])
     );
 });
+
 
 /**
  * @OA\Delete(
  *     path="/follow",
  *     tags={"follow"},
  *     summary="Unfollow a user",
+ *     security={{"ApiKey":{}}},
  *     description="Removes an existing follow relationship, if present.",
  *     @OA\RequestBody(
  *         required=true,
@@ -54,7 +69,7 @@ Flight::route('POST /follow', function() {
  *                 property="follower_id",
  *                 type="integer",
  *                 example=3,
- *                 description="ID of the user who is unfollowing"
+ *                 description="For USER role, must match authenticated user ID. ADMIN may specify any follower."
  *             ),
  *             @OA\Property(
  *                 property="followed_id",
@@ -71,20 +86,33 @@ Flight::route('POST /follow', function() {
  * )
  */
 Flight::route('DELETE /follow', function() {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
     $data = Flight::request()->data->getData();
+    $currentUser = Flight::get('user');
+
+    if ($currentUser->Role !== 'admin' && (int)$data['follower_id'] !== (int)$currentUser->UserID) {
+        Flight::json(["message" => "You can only unfollow as yourself"], 403);
+        return;
+    }
+
+    if ((int)$data['follower_id'] === (int)$data['followed_id']) {
+        Flight::json(["message" => "You cannot unfollow yourself"], 400);
+        return;
+    }
+
     Flight::json(
-        Flight::followService()->unfollow_user(
-            (int)$data['follower_id'],
-            (int)$data['followed_id']
-        )
+        Flight::followService()->unfollow_user((int)$data['follower_id'], (int)$data['followed_id'])
     );
 });
+
 
 /**
  * @OA\Get(
  *     path="/follow/check/{follower_id}/{followed_id}",
  *     tags={"follow"},
  *     summary="Check if one user is following another",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="follower_id",
  *         in="path",
@@ -106,6 +134,7 @@ Flight::route('DELETE /follow', function() {
  * )
  */
 Flight::route('GET /follow/check/@follower_id/@followed_id', function($follower_id, $followed_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::followService()->is_following(
             (int)$follower_id,
@@ -119,6 +148,7 @@ Flight::route('GET /follow/check/@follower_id/@followed_id', function($follower_
  *     path="/follow/mutuals/{user_a}/{user_b}",
  *     tags={"follow"},
  *     summary="Check if two users are mutuals (follow each other)",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="user_a",
  *         in="path",
@@ -140,6 +170,7 @@ Flight::route('GET /follow/check/@follower_id/@followed_id', function($follower_
  * )
  */
 Flight::route('GET /follow/mutuals/@user_a/@user_b', function($user_a, $user_b) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::followService()->are_mutuals((int)$user_a, (int)$user_b)
     );
@@ -150,6 +181,7 @@ Flight::route('GET /follow/mutuals/@user_a/@user_b', function($user_a, $user_b) 
  *     path="/follow/followers/count/{user_id}",
  *     tags={"follow"},
  *     summary="Get follower count for a user",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="user_id",
  *         in="path",
@@ -164,6 +196,7 @@ Flight::route('GET /follow/mutuals/@user_a/@user_b', function($user_a, $user_b) 
  * )
  */
 Flight::route('GET /follow/followers/count/@user_id', function($user_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::followService()->count_followers((int)$user_id)
     );
@@ -174,6 +207,7 @@ Flight::route('GET /follow/followers/count/@user_id', function($user_id) {
  *     path="/follow/following/count/{user_id}",
  *     tags={"follow"},
  *     summary="Get following count for a user",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="user_id",
  *         in="path",
@@ -188,6 +222,7 @@ Flight::route('GET /follow/followers/count/@user_id', function($user_id) {
  * )
  */
 Flight::route('GET /follow/following/count/@user_id', function($user_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::followService()->count_following((int)$user_id)
     );
@@ -198,6 +233,7 @@ Flight::route('GET /follow/following/count/@user_id', function($user_id) {
  *     path="/follow/followers/{user_id}",
  *     tags={"follow"},
  *     summary="Get followers of a user (IDs only)",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="user_id",
  *         in="path",
@@ -212,6 +248,7 @@ Flight::route('GET /follow/following/count/@user_id', function($user_id) {
  * )
  */
 Flight::route('GET /follow/followers/@user_id', function($user_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::followService()->get_followers((int)$user_id)
     );
@@ -222,6 +259,7 @@ Flight::route('GET /follow/followers/@user_id', function($user_id) {
  *     path="/follow/following/{user_id}",
  *     tags={"follow"},
  *     summary="Get users that a user is following (IDs only)",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="user_id",
  *         in="path",
@@ -236,6 +274,7 @@ Flight::route('GET /follow/followers/@user_id', function($user_id) {
  * )
  */
 Flight::route('GET /follow/following/@user_id', function($user_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::followService()->get_following((int)$user_id)
     );
@@ -246,6 +285,7 @@ Flight::route('GET /follow/following/@user_id', function($user_id) {
  *     path="/follow/followers/{user_id}/with-user",
  *     tags={"follow"},
  *     summary="Get followers of a user with user info",
+ *     security={{"ApiKey":{}}},
  *     description="Returns followers with their basic user details (e.g. username, full name).",
  *     @OA\Parameter(
  *         name="user_id",
@@ -261,6 +301,7 @@ Flight::route('GET /follow/following/@user_id', function($user_id) {
  * )
  */
 Flight::route('GET /follow/followers/@user_id/with-user', function($user_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::followService()->get_followers_with_user_info((int)$user_id)
     );
@@ -271,6 +312,7 @@ Flight::route('GET /follow/followers/@user_id/with-user', function($user_id) {
  *     path="/follow/following/{user_id}/with-user",
  *     tags={"follow"},
  *     summary="Get users that a user is following with user info",
+ *     security={{"ApiKey":{}}},
  *     description="Returns list of users that this user follows, with their basic user details.",
  *     @OA\Parameter(
  *         name="user_id",
@@ -286,6 +328,7 @@ Flight::route('GET /follow/followers/@user_id/with-user', function($user_id) {
  * )
  */
 Flight::route('GET /follow/following/@user_id/with-user', function($user_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::followService()->get_following_with_user_info((int)$user_id)
     );
