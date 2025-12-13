@@ -15,13 +15,13 @@ $token = isset($headers['Authentication']) ? $headers['Authentication'] : null;
 // Create middleware instance and verify
 $authMiddleware = new AuthMiddleware();
 
-try {
-    $authMiddleware->verifyToken($token);
-    $authMiddleware->authorizeRole('admin'); // Only admin can access
-} catch (Exception $e) {
-    http_response_code(401);
-    die('<h1>401 Unauthorized</h1><p>Admin access only.</p>');
-}
+//try {
+    //$authMiddleware->verifyToken($token);
+    //$authMiddleware->authorizeRole('admin'); // Only admin can access
+//} catch (Exception $e) {
+  //  http_response_code(401);
+    //die('<h1>401 Unauthorized</h1><p>Admin access only.</p>');
+//}
 
 // If we get here, user is admin - show docs
 ?>

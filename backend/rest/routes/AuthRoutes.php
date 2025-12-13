@@ -12,10 +12,11 @@ Flight::group('/auth', function() {
      *         required=true,
      *         @OA\JsonContent(
      *             required={"name","email","password"},
-     *             @OA\Property(property="name", type="string", example="John Doe", description="User name"),
-     *             @OA\Property(property="email", type="string", example="ima@gmail.com", description="User email"),
-     *             @OA\Property(property="password", type="string", example="ima", description="User password"),
-     *             @OA\Property(property="role", type="string", example="admin")
+     *             @OA\Property(property="username", type="string", example="Johny", description="Username"),
+     *             @OA\Property(property="fullname", type="string", example="John", description="Fullname"),
+     *             @OA\Property(property="email", type="string", example="johny@gmail.com", description="User email"),
+     *             @OA\Property(property="password", type="string", example="John123", description="User password"),
+     *             @OA\Property(property="password2", type="string", example="John123", description="Second user password")
      *         )
      *     ),
      *     @OA\Response(response=200, description="User registered successfully"),
@@ -53,8 +54,8 @@ Flight::group('/auth', function() {
     *          description="Credentials",
     *          @OA\JsonContent(
     *              required={"email","password"},
-    *              @OA\Property(property="email", type="string", example="ima@gmail.com", description="Student email address"),
-    *              @OA\Property(property="password", type="string", example="ima", description="Student password")
+    *              @OA\Property(property="email", type="string", example="example@gmail.com", description="User email address"),
+    *              @OA\Property(property="password", type="string", example="example123", description="User password")
     *          )
     *      )
     * )
