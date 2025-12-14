@@ -39,7 +39,10 @@ function loadCommunityDetail() {
 }
 
 function renderCommunityHeader(community, currentUserId) {
+    const currentUser = Utils.parseJwt(localStorage.getItem("user_token"));
+    const isAdmin = currentUser && currentUser.user.Role === 'admin';
     const isOwner = currentUserId == community.OwnerID;
+    const canModify = isOwner || isAdmin;
     
     const headerHtml = `
     <div class="community front page card tall-card">
@@ -51,8 +54,8 @@ function renderCommunityHeader(community, currentUserId) {
             <div class="community-footer">
                 <div class="members-box">Members: <span class="member-count" data-community-id="${community.CommunityID}">Loading...</span></div>
                 <button class="subscribe-btn" data-community-id="${community.CommunityID}" data-subscribed="false">Subscribe</button>
-                ${isOwner ? `
-                <button class="btn btn-sm btn-outline-secondary ms-2" id="editCommunityBtn" data-community-id="${community.CommunityID}">Edit</button>
+                ${canModify ? `
+                ${isOwner ? `<button class="btn btn-sm btn-outline-secondary ms-2" id="editCommunityBtn" data-community-id="${community.CommunityID}">Edit</button>` : ''}
                 <button class="btn btn-sm btn-outline-danger ms-2" id="deleteCommunityBtn" data-community-id="${community.CommunityID}">Delete</button>
                 ` : ''}
                 <button class="btn btn-sm btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#createCommunityPostModal">Create Post</button>
