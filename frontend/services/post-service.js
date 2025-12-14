@@ -23,6 +23,7 @@ var PostService = {
         });
     },
     
+    
     // NEW: Load community feed (SIMPLIFIED - one backend call!)
     loadCommunityFeed: function(userId) {
         RestClient.get(`community-posts/subscribed/${userId}`, function(posts) {
@@ -54,27 +55,9 @@ var PostService = {
             const postHtml = CommunityPostService.createCommunityPostCard(post, currentUserId);
             container.append(postHtml);
         });
+
+        applyLikedStateToCommunityButtons();  
         
-        // Attach community post handlers
-        CommunityPostService.attachCommunityPostHandlers(currentUserId, null);
-    },
-
-
-    // NEW: Render community posts (similar to regular posts but use community post service)
-    renderCommunityPosts: function(posts, currentUserId) {
-        const container = $("#posts-container");
-        container.empty();
-
-        if (!posts || posts.length === 0) {
-            container.html('<p style="text-align:center;color:#999;padding:40px;">No posts in your subscribed communities yet.</p>');
-            return;
-        }
-
-        posts.forEach(function(post) {
-            const postHtml = CommunityPostService.createCommunityPostCard(post, currentUserId);
-            container.append(postHtml);
-        });
-
         // Attach community post handlers
         CommunityPostService.attachCommunityPostHandlers(currentUserId, null);
     },
@@ -94,6 +77,8 @@ var PostService = {
             const postHtml = PostService.createPostCard(post, currentUserId);
             container.append(postHtml);
         });
+
+        applyLikedStateToDashboardButtons(); 
         
         // Attach event handlers after rendering
         PostService.attachPostEventHandlers(currentUserId);
@@ -301,3 +286,18 @@ var PostService = {
         return div.innerHTML;
     }
 };
+
+function applyLikedStateToDashboardButtons() {
+  const currentUser = Utils.parseJwt(localStorage.getItem("user_token"));
+  if (!currentUser) return;
+  const userId = currentUser.user.UserID;
+
+  $(".action.like-btn[data-post-id]").each(function () {
+    const btn = $(this);
+    const postId = btn.data("post-id");
+
+    LikeService.checkIfLiked(userId, postId, function (hasLiked) {
+      btn.toggleClass("liked", !!hasLiked);
+    });
+  });
+}

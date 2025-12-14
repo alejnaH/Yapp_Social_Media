@@ -1584,3 +1584,23 @@ body {
   gap: 6px;
 }
 
+/* Dashboard like button - make heart red when liked */
+/* Dashboard: make ONLY the heart red */
+.action.like-btn.liked svg path {
+  fill: #dc3545 !important;
+}
+
+/* Optional: keep number gray */
+.action.like-btn .like-count {
+  color: #6c757d;
+}
+
+/* Community feed: make ONLY the heart red */
+.action.community-like-btn.liked svg path {
+  fill: #dc3545 !important;
+}
+
+/* Optional: keep community number gray */
+.action.community-like-btn .community-like-count {
+  color: #6c757d;
+}

@@ -84,7 +84,9 @@ var CommunityPostService = {
             const postHtml = CommunityPostService.createCommunityPostCard(post, currentUserId);
             container.append(postHtml);
         });
-        
+
+        applyLikedStateToCommunityButtons();
+
         // Attach event handlers
         CommunityPostService.attachCommunityPostHandlers(currentUserId, communityId);
     },
@@ -225,3 +227,18 @@ var CommunityPostService = {
         });
     }
 };
+
+function applyLikedStateToCommunityButtons() {
+  const currentUser = Utils.parseJwt(localStorage.getItem("user_token"));
+  if (!currentUser) return;
+  const userId = currentUser.user.UserID;
+
+  $(".action.community-like-btn[data-community-post-id]").each(function () {
+    const btn = $(this);
+    const postId = btn.data("community-post-id");
+
+    CommunityLikeService.checkIfLiked(userId, postId, function (hasLiked) {
+      btn.toggleClass("liked", !!hasLiked);
+    });
+  });
+}
