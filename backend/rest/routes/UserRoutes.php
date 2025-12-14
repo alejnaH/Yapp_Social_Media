@@ -113,7 +113,7 @@ Flight::route('GET /users/email/@email', function($email) {
  *         in="path",
  *         required=true,
  *         description="Username",
- *         @OA\Schema(type="string", example="ilma_sljivo")
+ *         @OA\Schema(type="string", example="alejna_hasanagic")
  *     ),
  *     @OA\Response(
  *         response=200,
@@ -163,6 +163,7 @@ Flight::route('GET /users/username/@username', function($username) {
  * )
  */
 Flight::route('PUT /users/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     $currentUser = Flight::get('user'); // from JWT
 
     // Owner-only edit
