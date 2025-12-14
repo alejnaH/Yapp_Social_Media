@@ -24,7 +24,12 @@ class AuthService extends BaseService {
         if($entity['password'] !== $entity['password2']){
             return ['success' => false, 'error' => 'Passwords dont match.'];
         }
-        // TODO  CREATE A CHECK I.E. USE USER SERVICE TO GET POTENTIAL USER FROM DB BY USERNAME. IF EXISTS, RETURN ERROR MSG
+        
+        $userDao = new UserDao();
+        $username_exists = $userDao->getByUsername($entity['username']);
+        if ($username_exists) {
+            return ['success' => false, 'error' => 'Username already taken.'];
+}
 
         $email_exists = $this->auth_dao->get_user_by_email($entity['email']);
         if ($email_exists) {
