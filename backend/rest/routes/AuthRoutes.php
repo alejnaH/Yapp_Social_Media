@@ -37,7 +37,11 @@ Flight::group('/auth', function() {
                 'data' => $response['data']
             ]);
         } else {
-            Flight::halt(500, $response);
+            Flight::json([
+                "success" => false,
+                'message' => $response['error'] ?? 'Registration failed',
+                'errors' => $response['errors'] ?? []
+            ], 400);
         }
     });
 
