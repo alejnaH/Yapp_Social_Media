@@ -1,91 +1,32 @@
 <main class="explore-main">
+    <!-- Top bar: left create button, right search input -->
+    <div class="explore-topbar">
+        <div class="explore-topbar-left">
+            <button class="explore-create-btn" type="button" data-bs-toggle="modal" data-bs-target="#createCommunityModal">Create</button>
+        </div>
+        <div class="explore-topbar-right">
+            <label for="explore-search" class="visually-hidden">Search communities</label>
+            <input id="explore-search" class="explore-search-input" type="search" placeholder="Search communities" />
+        </div>
+    </div>
 
-			<!-- Top bar: left create button, right search input -->
-			<div class="explore-topbar">
-				<div class="explore-topbar-left">
-					<button class="explore-create-btn" type="button" data-bs-toggle="modal" data-bs-target="#createCommunityModal">Create</button>
-				</div>
-				<div class="explore-topbar-right">
-					<label for="explore-search" class="visually-hidden">Search communities</label>
-					<input id="explore-search" class="explore-search-input" type="search" placeholder="Search communities" />
-				</div>
-			</div>
+    <!-- Communities will be loaded here -->
+    <div style="text-align:center;padding:40px;">
+        <div class="spinner-border text-danger" role="status">
+            <span class="sr-only">Loading communities...</span>
+        </div>
+    </div>
+</main>
 
-			<!-- Three consecutive explore-scoped community cards -->
+<script>
+function loadExploreCommunities() {
+    CommunityService.loadAllCommunities(function(communities) {
+        const currentUser = Utils.parseJwt(localStorage.getItem("user_token"));
+        const userId = currentUser.user.UserID;
+        CommunityService.renderCommunities(communities, userId);
+    });
+}
 
-								<section class="explore-community-card tall-card">
-									<a class="card-link" href="/Yapp/frontend/index.html#community">
-										<div class="explore-community-body">
-											<div class="explore-community-header">
-												<h2 class="explore-community-title">Gardening & Growers</h2>
-												<p class="explore-community-desc">Tips, photos and Q&amp;A for home gardeners and urban growers.</p>
-											</div>
-
-											<div class="explore-community-footer">
-												<div class="explore-members-box">Members: <span class="explore-member-count">12,345</span></div>
-												<button class="explore-subscribe-btn" type="button" onclick="event.preventDefault(); event.stopPropagation();">Subscribe</button>
-											</div>
-										</div>
-									</a>
-								</section>
-
-								<section class="explore-community-card tall-card">
-									<a class="card-link" href="/Yapp/frontend/index.html#community">
-										<div class="explore-community-body">
-											<div class="explore-community-header">
-												<h2 class="explore-community-title">Indie Game Developers</h2>
-												<p class="explore-community-desc">Share builds, post devlogs, and discuss game design challenges.</p>
-											</div>
-
-											<div class="explore-community-footer">
-												<div class="explore-members-box">Members: <span class="explore-member-count">8,921</span></div>
-												<button class="explore-subscribe-btn" type="button" onclick="event.preventDefault(); event.stopPropagation();">Subscribe</button>
-											</div>
-										</div>
-									</a>
-								</section>
-
-								<section class="explore-community-card tall-card">
-									<a class="card-link" href="/Yapp/frontend/index.html#community">
-										<div class="explore-community-body">
-											<div class="explore-community-header">
-												<h2 class="explore-community-title">Photography Walks</h2>
-												<p class="explore-community-desc">Organize local photowalks and critique each other's work kindly.</p>
-											</div>
-
-											<div class="explore-community-footer">
-												<div class="explore-members-box">Members: <span class="explore-member-count">3,402</span></div>
-												<button class="explore-subscribe-btn" type="button" onclick="event.preventDefault(); event.stopPropagation();">Subscribe</button>
-											</div>
-										</div>
-									</a>
-								</section>
-		</main>
-
-		<!-- Create Community Modal -->
-		<div class="modal fade" id="createCommunityModal" tabindex="-1" aria-labelledby="createCommunityLabel" aria-hidden="true">
-			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="createCommunityLabel">Create community</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-					</div>
-					<form id="createCommunityForm">
-						<div class="modal-body">
-							<div class="mb-3">
-								<label for="communityName" class="form-label">Community name</label>
-								<input type="text" class="form-control" id="communityName" name="name" required maxlength="80" />
-							</div>
-							<div class="mb-3">
-								<label for="communityDesc" class="form-label">Short description</label>
-								<input type="text" class="form-control" id="communityDesc" name="shortDescription" maxlength="160" />
-							</div>
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-							<button type="submit" class="btn btn-primary">Create</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
+// Load communities on page load
+loadExploreCommunities();
+</script>

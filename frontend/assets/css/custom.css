@@ -1553,4 +1553,54 @@ body {
 				.yappadmin-admin-search { max-width: 100%; }
 			}
 
+/*EDIT AND DELETE BUTTONS */
 
+/* === FIX: push Edit/Delete to far right in feed cards === */
+.my-custom-card .card-footer{
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  padding-top: 14px; /* space for separator line */
+}
+
+/* Separator should be a line, not a block that takes a whole row */
+.my-custom-card .card-footer .card-separator{
+  position: absolute !important;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  margin: 0 !important;
+  border-top: 1.5px dashed #dfe3ef;
+  opacity: 0.7;
+  width: auto !important;
+}
+
+/* Keep like/comment aligned */
+.my-custom-card .card-footer .action{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Dashboard like button - make heart red when liked */
+/* Dashboard: make ONLY the heart red */
+.action.like-btn.liked svg path {
+  fill: #dc3545 !important;
+}
+
+/* Optional: keep number gray */
+.action.like-btn .like-count {
+  color: #6c757d;
+}
+
+/* Community feed: make ONLY the heart red */
+.action.community-like-btn.liked svg path {
+  fill: #dc3545 !important;
+}
+
+/* Optional: keep community number gray */
+.action.community-like-btn .community-like-count {
+  color: #6c757d;
+}

@@ -46,11 +46,12 @@ class CommunityPostDao extends BaseDao {
         return $stmt->fetchAll();
     }
 
-    /* GET all posts in one community with user info */
+    /* GET all posts in one community with user info AND community name */
     public function get_posts_by_community(int $communityId): array {
-        $sql = "SELECT cp.*, u.Username, u.FullName AS UserFullName
+        $sql = "SELECT cp.*, u.Username, u.FullName AS UserFullName, c.Name AS CommunityName
                 FROM `CommunityPost` cp
                 JOIN `User` u ON cp.UserID = u.UserID
+                JOIN `Community` c ON cp.CommunityID = c.CommunityID
                 WHERE cp.CommunityID = :cid
                 ORDER BY cp.TimeOfPost DESC, cp.CommunityPostID DESC";
         $stmt = $this->connection->prepare($sql);
@@ -59,8 +60,31 @@ class CommunityPostDao extends BaseDao {
         return $stmt->fetchAll();
     }
 
-    /* GET one post by ID */
+    /* NEW: GET posts from user's subscribed communities with community name */
+    public function get_posts_from_subscribed_communities(int $userId): array {
+        $sql = "SELECT cp.*, u.Username, u.FullName AS UserFullName, c.Name AS CommunityName
+                FROM `CommunityPost` cp
+                JOIN `User` u ON cp.UserID = u.UserID
+                JOIN `Community` c ON cp.CommunityID = c.CommunityID
+                JOIN `Subscription` s ON cp.CommunityID = s.CommunityID
+                WHERE s.UserID = :uid
+                ORDER BY cp.TimeOfPost DESC, cp.CommunityPostID DESC";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bindValue(':uid', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    /* GET one post by ID with community name */
     public function get_post_by_id(int $communityPostId): ?array {
-        return $this->getById($communityPostId);
+        $sql = "SELECT cp.*, u.Username, u.FullName AS UserFullName, c.Name AS CommunityName
+                FROM `CommunityPost` cp
+                JOIN `User` u ON cp.UserID = u.UserID
+                JOIN `Community` c ON cp.CommunityID = c.CommunityID
+                WHERE cp.CommunityPostID = :id";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bindValue(':id', $communityPostId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch();
     }
 }

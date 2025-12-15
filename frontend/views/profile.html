@@ -1,65 +1,90 @@
-
-  <section class="vh-100">
+<section class="vh-100">
     <div class="container py-5 h-100">
-      <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col-md-12 col-xl-4">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-md-12 col-xl-4">
 
-          <!-- Centered Communities button placed above the card -->
-          <div class="text-center mb-3">
-            <a href="/Yapp/frontend/index.html#my-communities" class="btn btn-communities btn-lg d-inline-flex align-items-center justify-content-center" role="button" aria-label="Communities">Communities</a>
-          </div>
-
-          <div class="card" style="border-radius: 15px;">
-            <div class="card-body text-center position-relative">
-
-              <!-- Admin button in top-left corner (opposite Edit). Links to admin page. -->
-              <a href="/Yapp/frontend/index.html#admin" class="position-absolute top-0 start-0 m-3 small text-decoration-none yapp-action-link yapp-admin-caption" aria-label="Admin page">
-                Admin
-              </a>
-
-              <!-- Edit button in top-right corner -->
-              <a href="edit" class="position-absolute top-0 end-0 m-3 small text-decoration-none yapp-action-link yapp-edit-caption" aria-label="Edit profile">
-                Edit
-              </a>
-
-              <div class="mt-3 mb-4">
-                <img src="assets/images/profile-icon.png"
-                     class="rounded-circle img-fluid"
-                     style="width:100px;"
-                     alt="Profile">
-              </div>
-
-              <h4 class="mb-2">Julie L. Arsenault</h4>
-              <p class="text-muted mb-4">
-                Passionate about building clean and creative web experiences.
-              </p>
-
-              <button type="button" class="btn btn-primary btn-rounded btn-lg">
-                Yapp
-              </button>
-
-              <!-- Communities button moved above the card -->
-
-              <div class="row text-center mt-4 mb-2">
-                <div class="col">
-                  <p class="mb-2 h5">8471</p>
-                  <p class="text-muted mb-0">Yapps</p>
+                <!-- Centered Communities button placed above the card -->
+                <div class="text-center mb-3">
+                    <a href="#my-communities" class="btn btn-communities btn-lg d-inline-flex align-items-center justify-content-center" role="button" aria-label="Communities">Communities</a>
                 </div>
-                <div class="col">
-                  <p class="mb-2 h5">8512</p>
-                  <p class="text-muted mb-0">Posts</p>
+
+                <div class="card" style="border-radius: 15px;">
+                    <div class="card-body text-center position-relative">
+
+                        <!-- Admin button in top-left corner (only show for admins) -->
+                        <a href="#admin" id="adminButton" class="position-absolute top-0 start-0 m-3 small text-decoration-none yapp-action-link yapp-admin-caption" aria-label="Admin page" style="display:none;">
+                            Admin
+                        </a>
+
+                        <!-- Edit button in top-right corner -->
+                        <a href="#edit-profile" class="position-absolute top-0 end-0 m-3 small text-decoration-none yapp-action-link yapp-edit-caption" aria-label="Edit profile">
+                            Edit
+                        </a>
+
+                        <div class="mt-3 mb-4">
+                            <img src="assets/images/profile-icon.png"
+                                 class="rounded-circle img-fluid"
+                                 style="width:100px;"
+                                 alt="Profile">
+                        </div>
+
+                        <h4 class="mb-2" id="profileFullName">Loading...</h4>
+                        <p class="text-muted mb-4" id="profileBio">
+                            Loading bio...
+                        </p>
+
+                        <button type="button" class="btn btn-primary btn-rounded btn-lg" onclick="window.location.hash='#dashboard'">
+                            Yapp
+                        </button>
+
+                        <div class="row text-center mt-4 mb-2">
+                            <div class="col">
+                                <p class="mb-2 h5" id="likeCount">0</p>
+                                <p class="text-muted mb-0">Likes</p>
+                            </div>
+                            <div class="col">
+                                <p class="mb-2 h5" id="postCount">0</p>
+                                <p class="text-muted mb-0">Posts</p>
+                            </div>
+                            <div class="col">
+                                <p class="mb-2 h5" id="commentCount">0</p>
+                                <p class="text-muted mb-0">Comments</p>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-                <div class="col">
-                  <p class="mb-2 h5">4751</p>
-                  <p class="text-muted mb-0">Comments</p>
-                </div>
-              </div>
 
             </div>
-          </div>
-
         </div>
-      </div>
     </div>
-  </section>
+</section>
 
+<script>
+function loadProfile() {
+    const currentUser = Utils.parseJwt(localStorage.getItem("user_token"));
+    const userId = currentUser.user.UserID;
+    const userRole = currentUser.user.Role;
+    
+    // Show admin button if user is admin
+    if (userRole === 'admin') {
+        $("#adminButton").show();
+    }
+    
+    // Load user profile
+    UserService.getCurrentUserProfile(function(user) {
+        $("#profileFullName").text(user.FullName || 'No name set');
+        $("#profileBio").text(user.Bio || 'No bio yet. Click Edit to add one!');
+    });
+    
+    // Load user statistics
+    UserService.getUserStats(userId, function(stats) {
+        $("#likeCount").text(stats.likes);
+        $("#postCount").text(stats.posts);
+        $("#commentCount").text(stats.comments);
+    });
+}
+
+// Load profile on page load
+loadProfile();
+</script>

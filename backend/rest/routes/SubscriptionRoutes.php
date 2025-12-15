@@ -5,6 +5,7 @@
  *     path="/subscriptions",
  *     tags={"subscriptions"},
  *     summary="Subscribe a user to a community",
+ *     security={{"ApiKey":{}}},
  *     description="Creates a subscription between a user and a community. Idempotent – returns 1 if a new subscription was created, 0 if it already existed.",
  *     @OA\RequestBody(
  *         required=true,
@@ -31,20 +32,28 @@
  * )
  */
 Flight::route('POST /subscriptions', function() {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
     $data = Flight::request()->data->getData();
+    $currentUser = Flight::get('user');
+
+    if ($currentUser->Role !== 'admin' && (int)$currentUser->UserID !== (int)$data['user_id']) {
+        Flight::json(["message" => "You can only subscribe as yourself"], 403);
+        return;
+    }
+
     Flight::json(
-        Flight::subscriptionService()->subscribe(
-            (int)$data['user_id'],
-            (int)$data['community_id']
-        )
+        Flight::subscriptionService()->subscribe((int)$data['user_id'], (int)$data['community_id'])
     );
 });
+
 
 /**
  * @OA\Delete(
  *     path="/subscriptions",
  *     tags={"subscriptions"},
  *     summary="Unsubscribe a user from a community",
+ *     security={{"ApiKey":{}}},
  *     description="Removes a subscription between a user and a community if it exists.",
  *     @OA\RequestBody(
  *         required=true,
@@ -66,25 +75,33 @@ Flight::route('POST /subscriptions', function() {
  *     ),
  *     @OA\Response(
  *         response=200,
- *         description="Boolean: true if subscription was removed, false if it did not exist"
+ *         description="Returns 1 if removed, 0 if it didn’t exist"
  *     )
  * )
  */
 Flight::route('DELETE /subscriptions', function() {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
     $data = Flight::request()->data->getData();
+    $currentUser = Flight::get('user');
+
+    if ($currentUser->Role !== 'admin' && (int)$currentUser->UserID !== (int)$data['user_id']) {
+        Flight::json(["message" => "You can only unsubscribe as yourself"], 403);
+        return;
+    }
+
     Flight::json(
-        Flight::subscriptionService()->unsubscribe(
-            (int)$data['user_id'],
-            (int)$data['community_id']
-        )
+        Flight::subscriptionService()->unsubscribe((int)$data['user_id'], (int)$data['community_id'])
     );
 });
+
 
 /**
  * @OA\Get(
  *     path="/subscriptions/check/{user_id}/{community_id}",
  *     tags={"subscriptions"},
  *     summary="Check if a user is subscribed to a community",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="user_id",
  *         in="path",
@@ -106,19 +123,26 @@ Flight::route('DELETE /subscriptions', function() {
  * )
  */
 Flight::route('GET /subscriptions/check/@user_id/@community_id', function($user_id, $community_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
+    if ($currentUser->Role !== 'admin' && (int)$currentUser->UserID !== (int)$user_id) {
+        Flight::json(["message" => "You can only check your own subscriptions"], 403);
+        return;
+    }
+
     Flight::json(
-        Flight::subscriptionService()->is_subscribed(
-            (int)$user_id,
-            (int)$community_id
-        )
+        Flight::subscriptionService()->is_subscribed((int)$user_id, (int)$community_id)
     );
 });
+
 
 /**
  * @OA\Get(
  *     path="/subscriptions/user/{user_id}",
  *     tags={"subscriptions"},
  *     summary="Get all communities a user is subscribed to",
+ *     security={{"ApiKey":{}}},
  *     description="Returns an array of CommunityID values that the user is subscribed to.",
  *     @OA\Parameter(
  *         name="user_id",
@@ -134,16 +158,26 @@ Flight::route('GET /subscriptions/check/@user_id/@community_id', function($user_
  * )
  */
 Flight::route('GET /subscriptions/user/@user_id', function($user_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
+    if ($currentUser->Role !== 'admin' && (int)$currentUser->UserID !== (int)$user_id) {
+        Flight::json(["message" => "You can only view your own subscriptions"], 403);
+        return;
+    }
+
     Flight::json(
         Flight::subscriptionService()->get_subscriptions_by_user((int)$user_id)
     );
 });
+
 
 /**
  * @OA\Get(
  *     path="/subscriptions/community/{community_id}",
  *     tags={"subscriptions"},
  *     summary="Get all subscribers of a community (IDs only)",
+ *     security={{"ApiKey":{}}},
  *     description="Returns an array of UserID values for users subscribed to the given community.",
  *     @OA\Parameter(
  *         name="community_id",
@@ -159,6 +193,7 @@ Flight::route('GET /subscriptions/user/@user_id', function($user_id) {
  * )
  */
 Flight::route('GET /subscriptions/community/@community_id', function($community_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::subscriptionService()->get_subscribers_by_community((int)$community_id)
     );
@@ -169,6 +204,7 @@ Flight::route('GET /subscriptions/community/@community_id', function($community_
  *     path="/subscriptions/community/{community_id}/count",
  *     tags={"subscriptions"},
  *     summary="Get subscriber count for a community",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="community_id",
  *         in="path",
@@ -183,6 +219,7 @@ Flight::route('GET /subscriptions/community/@community_id', function($community_
  * )
  */
 Flight::route('GET /subscriptions/community/@community_id/count', function($community_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::subscriptionService()->count_subscribers((int)$community_id)
     );
@@ -193,6 +230,7 @@ Flight::route('GET /subscriptions/community/@community_id/count', function($comm
  *     path="/subscriptions/community/{community_id}/with-user",
  *     tags={"subscriptions"},
  *     summary="Get subscribers of a community with user info",
+ *     security={{"ApiKey":{}}},
  *     description="Returns subscribed users with their basic user information (e.g. username, full name).",
  *     @OA\Parameter(
  *         name="community_id",
@@ -208,6 +246,7 @@ Flight::route('GET /subscriptions/community/@community_id/count', function($comm
  * )
  */
 Flight::route('GET /subscriptions/community/@community_id/with-user', function($community_id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::subscriptionService()->get_subscribers_with_user_info((int)$community_id)
     );

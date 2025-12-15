@@ -1,75 +1,189 @@
-
-
-<div class="communitypost-custom-card communitypost-extended-card">
-  <div class="communitypost-card-body" style="padding:0;">
-    <div class="communitypost-avatar-header">
-      <img src="http://localhost/Yapp/frontend/assets/images/profile-icon.png" alt="Avatar" class="communitypost-avatar-img">
-      <div>
-        <span class="communitypost-card-author">@yourname</span>
-        <small class="post-time" style="color:#9b9b9b;font-size:0.9rem;margin-left:8px;">Posted at <time datetime="2025-10-18T10:45">10:45 AM</time></small>
-
-      </div>
-    </div>
-    <h5 class="communitypost-card-title">One piece is overrated</h5>
-    <p class="communitypost-card-text">1200+ episodes and horrible animation, AoT deserves much better..</p>
-    <div class="communitypost-card-footer">
-      <div class="communitypost-card-separator"></div>
-      <button class="communitypost-action" aria-label="Like">
-        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-          <path d="M12 21s-8.5-5.6-8.5-11.3A4.7 4.7 0 0 1 8.2 5a5.3 5.3 0 0 1 3.8 1.7A5.3 5.3 0 0 1 15.8 5a4.7 4.7 0 0 1 4.7 4.7C20.5 15.4 12 21 12 21z" fill="currentColor"/>
-        </svg>
-        <span>95</span>
-      </button>
-      <button class="communitypost-action" aria-label="Comment">
-        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-          <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" fill="currentColor"/>
-        </svg>
-        <span>33</span>
-      </button>
-    </div>
-    <!-- Comment Section (now inside the same card) -->
-    <div class="communitypost-comment-section communitypost-comment-section-unified">
-      <form class="communitypost-comment-form">
-        <textarea class="communitypost-comment-textarea" placeholder="Write a comment"></textarea>
-        <button type="submit" class="communitypost-comment-btn">Post</button>
-      </form>
-      <div class="communitypost-comments-list">
-        <!-- Example Comment 1 -->
-        <div class="communitypost-comment">
-          <img src="http://localhost/Yapp/frontend/assets/images/cat.png" alt="Avatar" class="communitypost-comment-avatar">
-          <div class="communitypost-comment-content">
-            <div class="communitypost-comment-header">
-              <span class="communitypost-comment-username">@animefan</span>
-              <span class="communitypost-comment-time">commented at 12:20</span>
-            </div>
-            <div class="communitypost-comment-body">I totally agree, AoT is a masterpiece!</div>
-          </div>
+<div id="community-post-detail-container">
+    <!-- Loading spinner -->
+    <div style="text-align:center;padding:60px;">
+        <div class="spinner-border text-danger" role="status">
+            <span class="sr-only">Loading post...</span>
         </div>
-        <!-- Example Comment 2 -->
-        <div class="communitypost-comment">
-          <img src="http://localhost/Yapp/frontend/assets/images/onepiece.png" alt="Avatar" class="communitypost-comment-avatar">
-          <div class="communitypost-comment-content">
-            <div class="communitypost-comment-header">
-              <span class="communitypost-comment-username">@luffy</span>
-              <span class="communitypost-comment-time">commented at 12:22</span>
-            </div>
-            <div class="communitypost-comment-body">Bruh, One Piece is the GOAT, you just don't get it!</div>
-          </div>
-        </div>
-        <!-- Example Comment 3 -->
-        <div class="communitypost-comment">
-          <img src="http://localhost/Yapp/frontend/assets/images/admin-icon.png" alt="Avatar" class="communitypost-comment-avatar">
-          <div class="communitypost-comment-content">
-            <div class="communitypost-comment-header">
-              <span class="communitypost-comment-username">@admin</span>
-              <span class="communitypost-comment-time">commented at 12:23</span>
-            </div>
-            <div class="communitypost-comment-body">Let's keep it civil, folks. Both shows are great in their own way.</div>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 </div>
 
+<style>
+.communitypost-action.like-btn.liked svg path {
+    fill: #dc3545;
+}
+</style>
 
+<script>
+function loadCommunityPostDetail() {
+    const postId = sessionStorage.getItem('currentCommunityPostId');
+    
+    if (!postId) {
+        toastr.error("Post ID is missing");
+        window.location.hash = "#explore-communities";
+        return;
+    }
+    
+    const currentUser = Utils.parseJwt(localStorage.getItem("user_token"));
+    const currentUserId = currentUser.user.UserID;
+    
+    // Load post details
+    CommunityPostService.loadCommunityPost(postId, function(post) {
+        if (!post) {
+            toastr.error("Post not found");
+            window.location.hash = "#explore-communities";
+            return;
+        }
+        
+        // Render post
+        renderCommunityPostDetail(post, currentUserId);
+        
+        // Load comments
+        CommunityCommentService.loadComments(postId, function(comments) {
+            CommunityCommentService.renderComments(comments, currentUserId);
+            // Update comment count after loading comments
+            $(".communitypost-action .comment-count").text(comments ? comments.length : 0);
+        });
+        
+        // Check if user liked this post
+        CommunityLikeService.checkIfLiked(currentUserId, postId, function(hasLiked) {
+            if (hasLiked) {
+                $(".communitypost-action.like-btn").addClass('liked');
+            }
+        });
+        
+        // Load like count
+        RestClient.get(`community-likes/count/${postId}`, function(count) {
+            $(".communitypost-action.like-btn .like-count").text(count || 0);
+        });
+    });
+}
+
+function renderCommunityPostDetail(post, currentUserId) {
+    const postTime = PostService.formatTime(post.TimeOfPost || post.CreatedAt);
+    const username = post.Username || 'Unknown';
+    const communityName = post.CommunityName || ''; // ADD THIS LINE
+    const isOwner = currentUserId == post.UserID;
+    
+    const postHtml = `
+    <div class="communitypost-custom-card communitypost-extended-card" data-community-post-id="${post.CommunityPostID}">
+        <div class="communitypost-card-body" style="padding:0;">
+            <div class="communitypost-avatar-header">
+                <img src="assets/images/profile-icon.png" alt="Avatar" class="communitypost-avatar-img">
+                <div>
+                    <span class="communitypost-card-author">@${username}</span>
+                    ${communityName ? `<span style="margin-left:8px;background:#dc3545;color:white;padding:2px 8px;border-radius:12px;font-size:0.75rem;font-weight:600;">c/${PostService.escapeHtml(communityName)}</span>` : ''}
+                    <small class="post-time" style="color:#9b9b9b;font-size:0.9rem;margin-left:8px;">Posted at ${postTime}</small>
+                </div>
+                ${isOwner ? `
+                <div style="margin-left:auto;">
+                    <button class="btn btn-sm btn-outline-secondary edit-community-post-detail-btn">Edit</button>
+                    <button class="btn btn-sm btn-outline-danger delete-community-post-detail-btn">Delete</button>
+                </div>
+                ` : ''}
+            </div>
+            <h5 class="communitypost-card-title">${PostService.escapeHtml(post.Title)}</h5>
+            <p class="communitypost-card-text">${PostService.escapeHtml(post.Content)}</p>
+            <div class="communitypost-card-footer">
+                <div class="communitypost-card-separator"></div>
+                <button class="communitypost-action like-btn" data-community-post-id="${post.CommunityPostID}" aria-label="Like">
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                        <path d="M12 21s-8.5-5.6-8.5-11.3A4.7 4.7 0 0 1 8.2 5a5.3 5.3 0 0 1 3.8 1.7A5.3 5.3 0 0 1 15.8 5a4.7 4.7 0 0 1 4.7 4.7C20.5 15.4 12 21 12 21z" fill="currentColor"/>
+                    </svg>
+                    <span class="like-count">0</span>
+                </button>
+                <button class="communitypost-action" aria-label="Comment">
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                        <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" fill="currentColor"/>
+                    </svg>
+                    <span class="comment-count">0</span>
+                </button>
+            </div>
+            
+            <!-- Comment Section -->
+            <div class="communitypost-comment-section communitypost-comment-section-unified">
+                <form class="communitypost-comment-form" id="communityCommentForm">
+                    <textarea class="communitypost-comment-textarea" name="content" placeholder="Write a comment" required></textarea>
+                    <button type="submit" class="communitypost-comment-btn">Post</button>
+                </form>
+                <div class="communitypost-comments-list">
+                    <!-- Comments will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    $("#community-post-detail-container").html(postHtml);
+    
+    // Attach event handlers
+    attachCommunityPostDetailHandlers(post.CommunityPostID, currentUserId, post.CommunityID);
+}
+
+function attachCommunityPostDetailHandlers(postId, currentUserId, communityId) {
+    // Comment form submission
+    $("#communityCommentForm").off('submit').on("submit", function(e) {
+        e.preventDefault();
+        const content = $(this).find('textarea[name="content"]').val().trim();
+        
+        if (content) {
+            CommunityCommentService.createComment(postId, content, function() {
+                // Reload comments
+                CommunityCommentService.loadComments(postId, function(comments) {
+                    CommunityCommentService.renderComments(comments, currentUserId);
+                });
+                
+                // Clear form
+                $("#communityCommentForm textarea").val('');
+                
+                // Update comment count
+                const currentCount = parseInt($(".comment-count").text());
+                $(".comment-count").text(currentCount + 1);
+            });
+        }
+    });
+    
+    // Like button
+    $(".like-btn").off('click').on('click', function(e) {
+        e.preventDefault();
+        const btn = $(this);
+        
+        CommunityLikeService.toggleLike(postId, function(isLiked) {
+            if (isLiked) {
+                btn.addClass('liked');
+                const currentCount = parseInt(btn.find('.like-count').text());
+                btn.find('.like-count').text(currentCount + 1);
+            } else {
+                btn.removeClass('liked');
+                const currentCount = parseInt(btn.find('.like-count').text());
+                btn.find('.like-count').text(Math.max(0, currentCount - 1));
+            }
+        });
+    });
+    
+    // Edit post
+    $(".edit-community-post-detail-btn").off('click').on('click', function(e) {
+        e.preventDefault();
+        
+        CommunityPostService.loadCommunityPost(postId, function(post) {
+            $("#editCommunityPostModal input[name='title']").val(post.Title);
+            $("#editCommunityPostModal textarea").val(post.Content);
+            $("#editCommunityPostModal").data('post-id', postId);
+            $("#editCommunityPostModal").modal('show');
+        });
+    });
+    
+    // Delete post
+    $(".delete-community-post-detail-btn").off('click').on('click', function(e) {
+        e.preventDefault();
+        
+        CommunityPostService.deleteCommunityPost(postId, function() {
+            // Go back to community page
+            sessionStorage.setItem('currentCommunityId', communityId);
+            window.location.hash = "#community";
+        });
+    });
+}
+
+// Load post on page load
+loadCommunityPostDetail();
+</script>

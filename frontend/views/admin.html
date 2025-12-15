@@ -1,110 +1,64 @@
+<div class="container yappadmin-admin-wrap">
+    <div class="yappadmin-admin-header">
+        <h2 class="yappadmin-admin-title">User Administration</h2>
 
-				<div class="container yappadmin-admin-wrap">
-					<div class="yappadmin-admin-header">
-						<h2 class="yappadmin-admin-title">User Administration</h2>
+        <div class="yappadmin-admin-controls">
+            <div class="input-group yappadmin-admin-search">
+                <input id="yappadmin-adminSearch" type="search" class="form-control yappadmin-form-control" placeholder="Search users by name, username or email" aria-label="Search users">
+                <button id="yappadmin-clearSearch" class="btn btn-outline-secondary yappadmin-btn-clear" type="button">Clear</button>
+            </div>
+        </div>
+    </div>
 
-						<div class="yappadmin-admin-controls">
-							<div class="input-group yappadmin-admin-search">
-								<input id="yappadmin-adminSearch" type="search" class="form-control yappadmin-form-control" placeholder="Search users by name, username or email" aria-label="Search users">
-								<button id="yappadmin-clearSearch" class="btn btn-outline-secondary yappadmin-btn-clear" type="button">Clear</button>
-							</div>
+    <div class="table-responsive">
+        <table class="table yappadmin-admin-table align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Email</th>
+                    <th scope="col" class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody id="yappadmin-adminTableBody">
+                <tr>
+                    <td colspan="4" class="text-center">
+                        <div class="spinner-border text-danger" role="status">
+                            <span class="sr-only">Loading users...</span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-							<div class="yappadmin-admin-pagination text-muted small">
-						<label>Show
-								<select id="yappadmin-rowsPerPage" class="form-select form-select-sm d-inline-block yappadmin-rows-select" style="width:70px; margin:0 6px;"> 
-								<option>10</option>
-								<option>25</option>
-								<option>50</option>
-							</select>
-						entries</label>
-							</div>
-						</div>
-					</div>
+<script>
+let allUsers = [];
 
-			<div class="table-responsive">
-					<table class="table yappadmin-admin-table align-middle">
-					<thead>
-						<tr>
-							<th scope="col">Name</th>
-							<th scope="col">Username</th>
-							<th scope="col">Email</th>
-							<th scope="col" class="text-center">Action</th>
-						</tr>
-					</thead>
-					<tbody id="yappadmin-adminTableBody">
-						<tr>
-							<td class="yappadmin-name">Airi Satou</td>
-							<td class="yappadmin-username">@airisatou</td>
-							<td class="yappadmin-email">airi.satou@example.com</td>
-							<td class="text-center"><button class="btn yappadmin-btn-ban btn-sm" data-username="airisatou">Ban</button></td>
-						</tr>
+// Load users on page load
+function loadAdminPage() {
+    console.log("Loading admin page...");
+    
+    AdminService.loadUsers(function(users) {
+        console.log("Users loaded:", users.length);
+        allUsers = users;
+        AdminService.renderUsersTable(users);
+    });
+}
 
-						<tr>
-							<td class="yappadmin-name">Angelica Ramos</td>
-							<td class="yappadmin-username">@angelicar</td>
-							<td class="yappadmin-email">angelica.ramos@example.com</td>
-							<td class="text-center"><button class="btn yappadmin-btn-ban btn-sm" data-username="angelicar">Ban</button></td>
-						</tr>
+// Search functionality
+$("#yappadmin-adminSearch").on('input', function() {
+    const searchTerm = $(this).val().trim();
+    AdminService.filterUsers(searchTerm, allUsers);
+});
 
-						<tr>
-							<td class="yappadmin-name">Ashton Cox</td>
-							<td class="yappadmin-username">@ashtoncox</td>
-							<td class="yappadmin-email">ashton.cox@example.com</td>
-							<td class="text-center"><button class="btn yappadmin-btn-ban btn-sm" data-username="ashtoncox">Ban</button></td>
-						</tr>
+// Clear search
+$("#yappadmin-clearSearch").on('click', function() {
+    $("#yappadmin-adminSearch").val('');
+    AdminService.renderUsersTable(allUsers);
+});
 
-						<tr>
-							<td class="yappadmin-name">Bradley Greer</td>
-							<td class="yappadmin-username">@bradleyg</td>
-							<td class="yappadmin-email">bradley.greer@example.com</td>
-							<td class="text-center"><button class="btn yappadmin-btn-ban btn-sm" data-username="bradleyg">Ban</button></td>
-						</tr>
-
-						<tr>
-							<td class="yappadmin-name">Brenden Wagner</td>
-							<td class="yappadmin-username">@brendenw</td>
-							<td class="yappadmin-email">brenden.wagner@example.com</td>
-							<td class="text-center"><button class="btn yappadmin-btn-ban btn-sm" data-username="brendenw">Ban</button></td>
-						</tr>
-
-						<tr>
-							<td class="yappadmin-name">Brielle Williamson</td>
-							<td class="yappadmin-username">@briellew</td>
-							<td class="yappadmin-email">brielle.williamson@example.com</td>
-							<td class="text-center"><button class="btn yappadmin-btn-ban btn-sm" data-username="briellew">Ban</button></td>
-						</tr>
-
-						<tr>
-							<td class="yappadmin-name">Bruno Nash</td>
-							<td class="yappadmin-username">@brunon</td>
-							<td class="yappadmin-email">bruno.nash@example.com</td>
-							<td class="text-center"><button class="btn yappadmin-btn-ban btn-sm" data-username="brunon">Ban</button></td>
-						</tr>
-
-						<tr>
-							<td class="yappadmin-name">Caesar Vance</td>
-							<td class="yappadmin-username">@caesarv</td>
-							<td class="yappadmin-email">caesar.vance@example.com</td>
-							<td class="text-center"><button class="btn yappadmin-btn-ban btn-sm" data-username="caesarv">Ban</button></td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-
-			<!-- Simple footer for pagination (static placeholder) -->
-			<div class="d-flex justify-content-between align-items-center mt-3">
-				<div class="text-muted small">Showing 1 to 8 of 8 entries</div>
-				<nav aria-label="Admin pagination">
-					<ul class="pagination pagination-sm mb-0">
-						<li class="page-item disabled"><a class="page-link">Previous</a></li>
-						<li class="page-item active"><a class="page-link">1</a></li>
-						<li class="page-item disabled"><a class="page-link">Next</a></li>
-					</ul>
-				</nav>
-			</div>
-
-		</div>
-
-
-
-
+// Initialize
+loadAdminPage();
+</script>

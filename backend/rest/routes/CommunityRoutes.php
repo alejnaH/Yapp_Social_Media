@@ -5,6 +5,7 @@
  *     path="/communities",
  *     tags={"communities"},
  *     summary="Get all communities",
+ *     security={{"ApiKey":{}}},
  *     @OA\Response(
  *         response=200,
  *         description="Array of all communities ordered by creation time (newest first)"
@@ -12,6 +13,7 @@
  * )
  */
 Flight::route('GET /communities', function() {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::communityService()->get_all_communities()
     );
@@ -22,6 +24,7 @@ Flight::route('GET /communities', function() {
  *     path="/communities/{id}",
  *     tags={"communities"},
  *     summary="Get a community by ID",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -36,6 +39,7 @@ Flight::route('GET /communities', function() {
  * )
  */
 Flight::route('GET /communities/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::communityService()->get_community_by_id((int)$id)
     );
@@ -46,6 +50,7 @@ Flight::route('GET /communities/@id', function($id) {
  *     path="/communities/owner/{owner_id}",
  *     tags={"communities"},
  *     summary="Get communities by owner ID",
+ *     security={{"ApiKey":{}}}, 
  *     @OA\Parameter(
  *         name="owner_id",
  *         in="path",
@@ -60,16 +65,23 @@ Flight::route('GET /communities/@id', function($id) {
  * )
  */
 Flight::route('GET /communities/owner/@owner_id', function($owner_id) {
-    Flight::json(
-        Flight::communityService()->get_communities_by_owner((int)$owner_id)
-    );
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
+    if ($currentUser->Role !== 'admin' && (int)$currentUser->UserID !== (int)$owner_id) {
+        Flight::halt(403, "You can only view your own communities");
+    }
+
+    Flight::json(Flight::communityService()->get_communities_by_owner((int)$owner_id));
 });
+
 
 /**
  * @OA\Get(
  *     path="/communities/name/{name}",
  *     tags={"communities"},
  *     summary="Get a community by its name",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="name",
  *         in="path",
@@ -84,6 +96,7 @@ Flight::route('GET /communities/owner/@owner_id', function($owner_id) {
  * )
  */
 Flight::route('GET /communities/name/@name', function($name) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
     Flight::json(
         Flight::communityService()->get_community_by_name($name)
     );
@@ -94,6 +107,7 @@ Flight::route('GET /communities/name/@name', function($name) {
  *     path="/communities",
  *     tags={"communities"},
  *     summary="Create a new community",
+ *     security={{"ApiKey":{}}},
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
@@ -114,7 +128,7 @@ Flight::route('GET /communities/name/@name', function($name) {
  *                 property="OwnerID",
  *                 type="integer",
  *                 example=3,
- *                 description="User ID of the community owner/creator"
+ *                 description="For USER role, must match authenticated user ID. ADMIN may specify any owner."
  *             )
  *         )
  *     ),
@@ -125,17 +139,25 @@ Flight::route('GET /communities/name/@name', function($name) {
  * )
  */
 Flight::route('POST /communities', function() {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
     $data = Flight::request()->data->getData();
-    Flight::json(
-        Flight::communityService()->create_community($data)
-    );
+    $currentUser = Flight::get('user');
+
+    if ($currentUser->Role !== 'admin' && (int)$data['OwnerID'] !== (int)$currentUser->UserID) {
+        Flight::halt(403, "You can only create a community as yourself");
+    }
+
+    Flight::json(Flight::communityService()->create_community($data));
 });
+
 
 /**
  * @OA\Put(
  *     path="/communities/{id}",
  *     tags={"communities"},
  *     summary="Update an existing community",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -162,7 +184,7 @@ Flight::route('POST /communities', function() {
  *                 property="OwnerID",
  *                 type="integer",
  *                 example=5,
- *                 description="Updated owner user ID"
+ *                 description="Only ADMIN can change OwnerID. Ignored for USER role."
  *             )
  *         )
  *     ),
@@ -173,10 +195,24 @@ Flight::route('POST /communities', function() {
  * )
  */
 Flight::route('PUT /communities/@id', function($id) {
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
     $data = Flight::request()->data->getData();
-    Flight::json(
-        Flight::communityService()->update_community((int)$id, $data)
-    );
+    $currentUser = Flight::get('user');
+
+    $community = Flight::communityService()->get_community_by_id((int)$id);
+    if (!$community) Flight::halt(404, "Community not found");
+
+    if ($currentUser->Role !== 'admin' && (int)$community['OwnerID'] !== (int)$currentUser->UserID) {
+        Flight::halt(403, "You can only update your own community");
+    }
+
+    // prevent ownership hijack for normal users
+    if ($currentUser->Role !== 'admin') {
+        unset($data['OwnerID']);
+    }
+
+    Flight::json(Flight::communityService()->update_community((int)$id, $data));
 });
 
 /**
@@ -184,6 +220,7 @@ Flight::route('PUT /communities/@id', function($id) {
  *     path="/communities/{id}",
  *     tags={"communities"},
  *     summary="Delete a community by ID",
+ *     security={{"ApiKey":{}}},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -198,7 +235,17 @@ Flight::route('PUT /communities/@id', function($id) {
  * )
  */
 Flight::route('DELETE /communities/@id', function($id) {
-    Flight::json(
-        Flight::communityService()->delete_community((int)$id)
-    );
+    Flight::auth_middleware()->authorizeRoles([Roles::ADMIN, Roles::USER]);
+
+    $currentUser = Flight::get('user');
+
+    $community = Flight::communityService()->get_community_by_id((int)$id);
+    if (!$community) Flight::halt(404, "Community not found");
+
+    if ($currentUser->Role !== 'admin' && (int)$community['OwnerID'] !== (int)$currentUser->UserID) {
+        Flight::halt(403, "You can only delete your own community");
+    }
+
+    Flight::json(Flight::communityService()->delete_community((int)$id));
 });
+

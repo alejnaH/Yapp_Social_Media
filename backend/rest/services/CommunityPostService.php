@@ -43,4 +43,10 @@ class CommunityPostService {
         if (empty($community_id)) return "Invalid community ID";
         return $this->communityPostDao->get_posts_by_community($community_id);
     }
+
+    /* NEW: GET posts from user's subscribed communities */
+    public function get_posts_from_subscribed_communities(int $user_id) {
+        if (empty($user_id)) return "Invalid user ID";
+        return $this->communityPostDao->get_posts_from_subscribed_communities($user_id);
+    }
 }

@@ -9,10 +9,10 @@
                         <div id="login-alerts"></div>
                         <form id="loginForm">
                             <div class="mb-3">
-                                <input type="text" id="username" class="form-control" placeholder="Username" required>
+                                <input type="email" id="username" name="email" class="form-control" placeholder="Email" required>
                             </div>
                             <div class="mb-3">
-                                <input type="password" id="password" class="form-control" placeholder="Password" required>
+                                <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
                             </div>
                             <button type="submit" class="btn btn-primary" id="loginButton">
                                 <span class="login-text">Log In</span>
@@ -22,18 +22,33 @@
                         <p class="text-center mt-3">
                             Don't have an account? <a href="#signup">Sign up</a>
                         </p>
-                        <div class="mt-3">
-                            <small class="text-muted">
-                                Demo accounts:<br>
-                                Admin: admin / password<br>
-                                User: johndoe / password
-                            </small>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
-</body>
 
+<script>
+console.log("Login page loaded"); // DEBUG
+
+// Handle login form submission
+$("#loginForm").on("submit", function(e) {
+    e.preventDefault();
+    console.log("Form submitted!"); // DEBUG
+    
+    const email = $("#username").val().trim();
+    const password = $("#password").val().trim();
+    
+    console.log("Attempting login with:", email); // DEBUG
+    
+    if (email && password) {
+        UserService.login(email, password);
+    } else {
+        toastr.error("Please fill in all fields");
+    }
+});
+
+console.log("Login handler attached"); // DEBUG
+</script>
+</body>
