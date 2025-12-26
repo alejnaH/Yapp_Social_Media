@@ -70,7 +70,7 @@ class PostDao extends BaseDao {
                         MAX(CASE WHEN l.UserID = :currentUserId THEN 1 ELSE 0 END) AS user_liked
                     FROM `Post` p
                     JOIN `User` u ON p.UserID = u.UserID
-                    LEFT JOIN `Like` l ON l.PostID = p.PostID
+                    LEFT JOIN `like` l ON l.PostID = p.PostID
                     LEFT JOIN `Comment` c ON c.PostID = p.PostID
                     GROUP BY p.PostID
                     ORDER BY p.TimeOfPost DESC, p.PostID DESC";
@@ -86,7 +86,7 @@ class PostDao extends BaseDao {
                         0 AS user_liked
                     FROM `Post` p
                     JOIN `User` u ON p.UserID = u.UserID
-                    LEFT JOIN `Like` l ON l.PostID = p.PostID
+                    LEFT JOIN `like` l ON l.PostID = p.PostID
                     LEFT JOIN `Comment` c ON c.PostID = p.PostID
                     GROUP BY p.PostID
                     ORDER BY p.TimeOfPost DESC, p.PostID DESC";
@@ -107,7 +107,7 @@ class PostDao extends BaseDao {
                 FROM `Post` p
                 JOIN `User` u ON p.UserID = u.UserID
                 LEFT JOIN `Comment` c ON c.PostID = p.PostID
-                LEFT JOIN `Like` l ON l.PostID = p.PostID
+                LEFT JOIN `like` l ON l.PostID = p.PostID
                 WHERE p.PostID = :postId
                 GROUP BY p.PostID";
         $stmt = $this->connection->prepare($sql);
