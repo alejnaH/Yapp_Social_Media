@@ -1,7 +1,7 @@
 let RestClient = {
    get: function (url, callback, error_callback) {
      $.ajax({
-       url: Constants.PROJECT_BASE_URL + url,
+       url: 'https://yapp-backend-b1a90d0d7142.herokuapp.com/' + url,
        type: "GET",
        beforeSend: function (xhr) {
          const token = localStorage.getItem("user_token");
@@ -29,7 +29,7 @@ let RestClient = {
       const isJsonData = typeof data === 'string' && (data.startsWith('{') || data.startsWith('['));
       
       $.ajax({
-          url: Constants.PROJECT_BASE_URL + url,
+          url: 'https://yapp-backend-b1a90d0d7142.herokuapp.com/' + url,
           type: method,
           beforeSend: function (xhr) {
               const token = localStorage.getItem("user_token");

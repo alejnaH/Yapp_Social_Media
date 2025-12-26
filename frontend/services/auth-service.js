@@ -10,7 +10,7 @@ var AuthService = {
             });
 
             $.ajax({
-                url: Constants.PROJECT_BASE_URL + "auth/register",
+                url: 'https://yapp-backend-b1a90d0d7142.herokuapp.com/' + "auth/register",
                 type: "POST",
                 data: formDataObject,
                 dataType: "json",
