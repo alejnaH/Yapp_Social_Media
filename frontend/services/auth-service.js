@@ -64,7 +64,7 @@ var AuthService = {
                 $.blockUI({ message: '<h3>Creating account...</h3>' });
 
                 $.ajax({
-                    url: PROJECT_BASE_URL + "auth/register",
+                    url: Constants.PROJECT_BASE_URL + "auth/register",
                     type: "POST",
                     data: formDataObject,
                     dataType: "json",
