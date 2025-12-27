@@ -30,25 +30,8 @@
 </section>
 
 <script>
-console.log("Login page loaded"); // DEBUG
-
-// Handle login form submission
-$("#loginForm").on("submit", function(e) {
-    e.preventDefault();
-    console.log("Form submitted!"); // DEBUG
-    
-    const email = $("#username").val().trim();
-    const password = $("#password").val().trim();
-    
-    console.log("Attempting login with:", email); // DEBUG
-    
-    if (email && password) {
-        UserService.login(email, password);
-    } else {
-        toastr.error("Please fill in all fields");
-    }
+$(document).ready(function() {
+    UserService.initLoginForm();
 });
-
-console.log("Login handler attached"); // DEBUG
 </script>
 </body>

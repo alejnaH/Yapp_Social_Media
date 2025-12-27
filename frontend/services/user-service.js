@@ -63,7 +63,39 @@ var UserService = {
             console.error(error);
         });
     },
-    
+
+    initLoginForm: function() {
+        $("#loginForm").validate({
+            rules: {
+                email: {
+                    required: true,
+                    email: true
+                },
+                password: {
+                    required: true,
+                    minlength: 6
+                }
+            },
+            messages: {
+                email: {
+                    required: "Please enter your email",
+                    email: "Please enter a valid email address"
+                },
+                password: {
+                    required: "Please enter your password",
+                    minlength: "Password must be at least 6 characters"
+                }
+            },
+            submitHandler: function(form) {
+                const email = $("#username").val().trim();
+                const password = $("#password").val().trim();
+
+                // Use existing UserService.login
+                UserService.login(email, password);
+            }
+        });
+    },
+ 
     // Update user profile
     updateProfile: function(userId, fullName, bio, callback) {
         const userData = {

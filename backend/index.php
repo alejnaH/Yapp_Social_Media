@@ -1,4 +1,27 @@
 <?php
+
+// --- CORS HEADERS (MUST BE AT THE VERY TOP) ---
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+// You can restrict this to your Vercel domain for security
+header('Access-Control-Allow-Origin: *');
+// Or, more securely:
+// if (in_array($origin, ['https://yapp-social-media-app-86mu.vercel.app', 'http://localhost:8000'])) {
+//     header("Access-Control-Allow-Origin: $origin");
+// }
+
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authentication');
+header('Access-Control-Max-Age: 86400'); // Cache preflight for 1 day
+header('Content-Type: application/json');
+
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+// --- END CORS HEADERS ---
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Firebase\JWT\JWT;
@@ -8,25 +31,9 @@ use Firebase\JWT\Key;
 require_once __DIR__ . '/middleware/AuthMiddleware.php';
 require_once __DIR__ . '/data/roles.php';
 
-// ini_set('display_errors', 1);
-// ini_set('display_startup_errors', 1);
-// error_reporting(E_ALL);
-
-// Add CORS headers
-Flight::before('start', function() {
-    header('Access-Control-Allow-Origin: *');
-    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authentication');
-    header('Content-Type: application/json');
-    
-    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-        http_response_code(200);
-        exit();
-    }
-});
-
-
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 // SERVICES
 require_once __DIR__ . '/rest/services/UserService.php';

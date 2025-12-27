@@ -26,3 +26,8 @@ Yapp is designed to be a **modern, responsive, and interactive social platform**
 - MySQL (Relational Database)
 - RESTful API architecture
 - OpenAPI (Swagger) for API documentation
+
+### **Deployment Link: **
+- https://alejna.netlify.app/
+
+Deployment branch
