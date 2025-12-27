@@ -27,4 +27,7 @@ Yapp is designed to be a **modern, responsive, and interactive social platform**
 - RESTful API architecture
 - OpenAPI (Swagger) for API documentation
 
+### **Deployment Link: **
+- https://alejna.netlify.app/
+
 Deployment branch
