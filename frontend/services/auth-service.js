@@ -60,9 +60,6 @@ var AuthService = {
                     formDataObject[field.name] = field.value;
                 });
 
-                // Show loading overlay
-                $.blockUI({ message: '<h3>Creating account...</h3>' });
-
                 $.ajax({
                     url: Constants.PROJECT_BASE_URL + "auth/register",
                     type: "POST",

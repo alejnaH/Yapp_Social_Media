@@ -90,9 +90,6 @@ var UserService = {
                 const email = $("#username").val().trim();
                 const password = $("#password").val().trim();
 
-                // Show loading overlay
-                $.blockUI({ message: '<h3>Logging in...</h3>' });
-
                 // Use existing UserService.login
                 UserService.login(email, password);
             }
